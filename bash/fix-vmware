@@ -1,13 +1,27 @@
-   vmware-modconfig --console --install-all
+#!/usr/bin/env bash
 
-   openssl req -new -x509 -newkey rsa:4096 -keyout VMWARE.priv -outform DER -out VMWARE.der -nodes -days 36500 -subj "/CN=VMware/"
+echo "Install VMWare kernel modules'
+vmware-modconfig --console --install-all
 
-   /usr/src/linux-headers-$(uname -r)/scripts/sign-file sha256 ./VMWARE.priv ./VMWARE.der $(modinfo -n vmmon)
+sleep 1
+echo "Generate new keypair"
+openssl req -new -x509 -newkey rsa:4096 -keyout VMWARE.priv -outform DER -out VMWARE.der -nodes -days 36500 -subj "/CN=VMware/"
 
-   /usr/src/linux-headers-$(uname -r)/scripts/sign-file sha256 ./VMWARE.priv ./VMWARE.der $(modinfo -n vmnet)
+sleep 1
+echo "Sign kernel modules with new keypair"
+/usr/src/linux-headers-$(uname -r)/scripts/sign-file sha256 ./VMWARE.priv ./VMWARE.der $(modinfo -n vmmon)
 
-   tail $(modinfo -n vmmon) | grep "Module signature appended"
+/usr/src/linux-headers-$(uname -r)/scripts/sign-file sha256 ./VMWARE.priv ./VMWARE.der $(modinfo -n vmnet)
 
-   mokutil --import VMWARE.der
+sleep 1
+echo "Checking the kernel modules have been signed"
+tail $(modinfo -n vmmon) | grep "Module signature appended"
 
-   reboot
+sleep 1
+echo "import the public key to UEFI"
+mokutil --import VMWARE.der
+
+Sleep 1
+echo "Rebooting"
+sleep 0.5
+reboot
