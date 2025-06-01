@@ -1,0 +1,6 @@
+#+author: Henry Davies
+#+title: README
+
+This repository contains various scripts which I use to facilitate a smooth workflow on GNU/Linux systems.
+
+Most of the scripts in this repository are /Bash/ scripts, though there are also some python scripts. 
