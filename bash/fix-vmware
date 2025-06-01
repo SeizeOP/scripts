@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-echo "Install VMWare kernel modules'
+echo "Install VMWare kernel modules"
 vmware-modconfig --console --install-all
 
 sleep 1
