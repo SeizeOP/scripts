@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# kill any running emacs processes
+killall emacs
+
+# start the emacs server
+/usr/bin/emacs --daemon & disown
+
+# Wait 4 seconds then launch emacs
+sleep 4
+emacsclient -c -a "" "$@"

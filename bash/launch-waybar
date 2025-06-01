@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# Kill current waybar
+killall waybar
+
+# Load user's waybar config
+if [[ $USER = "user" ]]
+then
+    waybar -c ~/dotfiles/waybar/config.jsonc & disown
+    
+    # Send Notification that Waybar has been reloaded
+    notify-send -t 2500 --icon=/home/user/Pictures/dev/Wayland_Logo.png 'Waybar' "Your Waybar configuration has been reloaded."
+else 
+    # load Waybar without custom configs
+    waybar & disown
+fi
+
+# Rember this is a BASH script, so it will NOT work in Eshell

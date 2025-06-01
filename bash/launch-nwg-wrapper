@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# kill current nwg-wrapper
+killall nwg-wrapper
+
+# load user's nwg-wrapper config
+if [[ $USER = "user" ]]
+then
+	nwg-wrapper -t bindings.pango -c style.css -p left -a start -mt 20 -ml 20 -j left & 
+else
+	nwg-wrapper &
+fi
+
+# Send notification that Waybar has been reloaded
+notify-send -t 2500 --icon=/home/user/Pictures/dev/Wayland_Logo.png 'Config Reloaded' "Your nwg-wrapper config has been reloaded" 
+ 

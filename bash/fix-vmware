@@ -1,0 +1,13 @@
+   vmware-modconfig --console --install-all
+
+   openssl req -new -x509 -newkey rsa:4096 -keyout VMWARE.priv -outform DER -out VMWARE.der -nodes -days 36500 -subj "/CN=VMware/"
+
+   /usr/src/linux-headers-$(uname -r)/scripts/sign-file sha256 ./VMWARE.priv ./VMWARE.der $(modinfo -n vmmon)
+
+   /usr/src/linux-headers-$(uname -r)/scripts/sign-file sha256 ./VMWARE.priv ./VMWARE.der $(modinfo -n vmnet)
+
+   tail $(modinfo -n vmmon) | grep "Module signature appended"
+
+   mokutil --import VMWARE.der
+
+   reboot
