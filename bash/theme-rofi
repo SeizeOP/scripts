@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+new_rofi_theme=$(yad --file --file-filter "Rasi files | *.rasi" --title="Select New Rofi Theme")
+if [ -n "$new_rofi_theme" ]; then
+  ln -sf "$new_rofi_theme" $HOME/dotfiles/rofi/config.rasi
+fi 

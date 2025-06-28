@@ -4,8 +4,11 @@
 killall emacs
 
 # start the emacs server
-/usr/bin/emacs --daemon & disown
+if ! pgrep -f "emacs" > /dev/null; then
+	/usr/bin/emacs --daemon & disown
 
 # Wait 4 seconds then launch emacs
-sleep 4
-emacsclient -c -a "" "$@"
+else
+	sleep 4
+	emacsclient -c -a "" "$@"
+fi
