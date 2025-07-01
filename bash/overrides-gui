@@ -15,7 +15,8 @@ yad --form --title "HD's Theme Switcher and Override Tool" --height 420 --width 
 This program aims to provide a simple, and centralized location to change color themes and overrive various configurations for a Linux system using a tiling window manager (TWM) such as Sway or Hyprland." \
 	--columns=2 --align-button \
 	--field=" Waybar Theme Switcher!color! Change Waybar theme":fbtn "/home/$USER/.local/bin/theme-waybar" \
-	--field=" Rofi Theme Switcher!color! Change Rofi theme":fbtn "/home/$USER/.local/bin/theme-rofi" \
+	--field=" Rofi Theme Switcher!rofi! Change Rofi theme":fbtn "/home/$USER/.local/bin/theme-rofi" \
+	--field=" Waypaper!waypaper! Change current wallpaper":fbtn "waypaper" \
 	--field=" Disable Greyscale!color-mode-black-white! Override the scheduled greyscale function":fbtn "/home/$USER/.local/bin/greyscale-off" \
 	--field=" Enable Greyscale!color-mode-black-white! Override the scheduled greyscale function":fbtn "/home/$USER/.local/bin/greyscale-on" \
 	--field=" Enable bluelight filter!color-mode-hue-shift-positive! Override the scheduled blue-light function via hyprsunset.":fbtn "/home/$USER/.local/bin/blue-light-on" \
