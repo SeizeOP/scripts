@@ -22,7 +22,11 @@ This program aims to provide a simple, and centralized location to change color 
 	--field=" Enable bluelight filter!color-mode-hue-shift-positive! Override the scheduled blue-light function via hyprsunset.":fbtn "/home/$USER/.local/bin/blue-light-on" \
 	--field=" Disable bluelight filter!color-mode-hue-shift-negative! Override the scheduled blue-light function via hyprsunset.":fbtn "/home/$USER/.local/bin/blue-light-off" \
 	--field=" Reload Configs!task-recurring! Reload various programs to apply updated cusotm configurations":fbtn "/home/$USER/.local/bin/launch-waybar" \
-	--button=" About!about!about overides-gui:yad --about --pname 'Overrides GUI' --authors 'Henry Davies' --license MIT" \
+	--button=" About!about!about overides-gui:yad --about \
+		   		     		      --pname 'Overrides GUI' \
+						      --authors 'Henry Davies' \ 								--comments 'A simple graphical program to control various system configurations.' \
+						      --license MIT \						    				--website 'seizeop.github.'\
+						     --website-label 'Documentation'" \
 	--button=" Exit!exit!gtk-cancel:1" \
 
 
