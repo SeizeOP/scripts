@@ -6,14 +6,14 @@ function exit_after(){
 }
 export -f exit_after
 
-yad --form --title "HD's Theme Switcher and Override Tool" --height 420 --width 600 \
+yad --form --title "HD's Theme Switcher and Override Tool" --width 420 --height 320 \
 	--center --text-align "left" --window-icon="$HOME/Pictures/dev/emacs-desktop.png" \
-	--borders 20 \
+	--borders 10 \
 	--image="$HOME/Pictures/dev/emacs-desktop.png" \
 	--text "<span font_weight='bold' font='18' color='#ff79c6'>Welcome to HD's Theme Switcher</span>
 
 This program aims to provide a simple, and centralized location to change color themes and overrive various configurations for a Linux system using a tiling window manager (TWM) such as Sway or Hyprland." \
-	--columns=2 --align-button \
+	--columns=2  \
 	--field=" Waybar Theme Switcher!color! Change Waybar theme":fbtn "/home/$USER/.local/bin/theme-waybar" \
 	--field=" Rofi Theme Selector!rofi! Change Rofi theme":fbtn "rofi-theme-selector" \
 	--field=" Waypaper!waypaper! Change current wallpaper":fbtn "waypaper" \
@@ -25,7 +25,7 @@ This program aims to provide a simple, and centralized location to change color 
 	--button=" About!about!about overides-gui:yad --about \
 		   		     		      --pname 'Overrides GUI' \
 						      --authors 'Henry Davies' \ 								--comments 'A simple graphical program to control various system configurations.' \
-						      --license MIT \						    				--website 'seizeop.github.'\
+						      --license MIT \						    				--website 'seizeop.github.io'\
 						     --website-label 'Documentation'" \
 	--button=" Exit!exit!gtk-cancel:1" \
 
