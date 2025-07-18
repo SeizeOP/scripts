@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# kill current hyprsunset sesion
+killall -q hyprsunset
+
+# hyprsunset to 4500
+hyprsunset -t 4500 & disown

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+export WAYLAND_DISPLAY=wayland-1
+export XDG_RNTIME_DIR="/run/user/$(id -u)"
+# kill current hyprsunset sesion
+killall -q hyprsunset
+
+hyprsunset -t 6500 & disown 

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# this is an over-ride script for the 'greyscale' script. This script will simply enable 'greyscale' another overide script 'greyscale-off' will be provided as an over-ride to manually disable greyscale aswell.
+sed -i -E '/screen_shader/s/^( *)#+(.*)/\1\2/' ~/dotfiles/hypr/hyprland.org && exec emacs --batch --eval "(progn (find-file \"~/dotfiles/hypr/hyprland.org\") (save-buffer) (org-babel-tangle))" && notify-send -t 2500 'Shader' "Enabling greyscale shader for Hyprland" --icon=/home/user/Pictures/dev/Hyprland_Logo-black.png 
+
+# reload hyprland
+hyprctl reload
