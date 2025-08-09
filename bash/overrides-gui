@@ -6,17 +6,18 @@ function exit_after(){
 }
 export -f exit_after
 
-yad --form --title "HD's Theme Switcher and Override Tool" --width 420 --height 320 \
+yad --form --title "HD's Control Panel" --width 420 --height 320 \
 	--center --text-align "left" --window-icon="$HOME/Pictures/dev/emacs-desktop.png" \
 	--borders 10 \
 	--image="$HOME/Pictures/dev/emacs-desktop.png" \
-	--text "<span font_weight='bold' font='18' color='#ff79c6'>Welcome to HD's Theme Switcher</span>
+	--text "<span font_weight='bold' font='18' color='#ff79c6'>Welcome to HD's Control Panel</span>
 
 This program aims to provide a simple, and centralized location to change color themes and overrive various configurations for a Linux system using a tiling window manager (TWM) such as Sway or Hyprland." \
 	--columns=2  \
 	--field=" Waybar Theme Switcher!color! Change Waybar theme":fbtn "/home/$USER/.local/bin/theme-waybar" \
 	--field=" Rofi Theme Selector!rofi! Change Rofi theme":fbtn "rofi-theme-selector" \
 	--field=" Waypaper!waypaper! Change current wallpaper":fbtn "waypaper" \
+	--field=" Gradia!be.alexandervanhee.gradia! Take and edit screenshots":fbtn "flatpak run be.alexandervanhee.gradia" \
 	--field=" Disable Greyscale!color-mode-black-white! Override the scheduled greyscale function":fbtn "/home/$USER/.local/bin/greyscale-off" \
 	--field=" Enable Greyscale!color-mode-black-white! Override the scheduled greyscale function":fbtn "/home/$USER/.local/bin/greyscale-on" \
 	--field=" Enable bluelight filter!color-mode-hue-shift-positive! Override the scheduled blue-light function via hyprsunset.":fbtn "/home/$USER/.local/bin/blue-light-on" \
