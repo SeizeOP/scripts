@@ -8,22 +8,19 @@ if [[ $USER = "user" ]]; then
     # Check if Hyprland is running
     if pgrep -x "Hyprand" > /dev/null; then
 	waybar -c ~/dotfiles/waybar/config.jsonc -s ~/.config/waybar/style.css & disown
-    
-	# Send Notification that Waybar has been reloaded
-	notify-send -t 2500 --icon=/home/user/Pictures/dev/Wayland_Logo.png 'Waybar' "Your Waybar configuration has been reloaded."
-
-# Check if Sway is running
+	
+    # Check if Sway is running
     elif pgrep -x "sway" > /dev/null; then
-    waybar -c ~/dotfiles/swaybar-dracula/config.jsonc -s ~/dotfiles/swaybar-dracula/style.css & disown
+	waybar -c ~/dotfiles/swaybar-dracula/config.jsonc -s ~/dotfiles/swaybar-dracula/style.css & disown
 
-    # Send Notification that Waybar has been reloaded
-    notify-send -t 2500 --icon=/home/user/Pictures/dev/Wayland_Logo.png 'Waybar' "Your Waybar configuration has been reloaded."
+    # Check if Niri is running
+    elif pgrep -x "niri" > /dev/null; then
+	waybar -c ~/dotfiles/niri-waybar/config.jsonc -s ~/dotfiles/niri-waybar/style.css & disown
+	
+
     else
-
-    # load Waybar without custom configs
-    waybar & disown
-fi
-else
-    echo "Waybar configuration not loaded for user '$USER'."
+	waybar & disown
+	echo "Waybar configuration not loaded for user '$USER'."
+    fi
 fi
 # Rember this is a BASH script, so it will NOT work in Eshell
