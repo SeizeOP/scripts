@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+if pgrep -x "yad" > /dev/null; then
+    kill $(pgrep yad)
+fi
 
 function exit_after(){
     kill -s SIGTERM "$YAD_PID" &> /dev/null
