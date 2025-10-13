@@ -1,6 +1,6 @@
 #!/bin/bash
 new_origin=$(yad --file --directory --title="Select New Waybar Theme")
 if [ -n "$new_origin" ]; then
-  ln -snf "$new_origin" $HOME/.config/waybar
-  ln -snf "$new_origin" $HOME/dotfiles/waybar
+    ln -snf "$new_origin" $HOME/.config/waybar
+    ln -snf "$new_origin" $HOME/dotfiles/waybar
 fi
