@@ -6,9 +6,10 @@ killall emacs
 # start the emacs server
 if ! pgrep -f "emacs" > /dev/null; then
 	/usr/bin/emacs --daemon & disown
+	/usr/bin/emacsclient -c -a "" "$@"
 
 # Wait 4 seconds then launch emacs
 else
 	sleep 4
-	emacsclient -c -a "" "$@"
+	/usr/bin/emacsclient -c -a "" "$@"
 fi
