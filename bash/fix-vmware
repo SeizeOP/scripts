@@ -6,7 +6,7 @@ sudo vmware-modconfig --console --install-all
 sleep 1
 
 echo Generate new RSA keypair
-openssl req -new -x509 -newkey rsa:4096 -keyout VMWARE.priv -outform DER -out VMWARE.der -nodes -days 36500 -subj "/CN=VMware/"
+sudo openssl req -new -x509 -newkey rsa:4096 -keyout VMWARE.priv -outform DER -out VMWARE.der -nodes -days 36500 -subj "/CN=VMware/"
 sleep 0.5
 
 echo Sign VMWare modules VMMON and VMNET with new keypair
@@ -16,10 +16,11 @@ sleep 0.5
 
 echo Checking that VMMON and VMNET kernel modules have been signed
 tail $(modinfo -n vmmon) | grep "Module signature appended"
+tail $(modinfo -n vmnet) | grep "Module signature appended"
 
 sleep 1
 echo Import the public key to UEFI
-mokutil --import VMWARE.der
+sudo mokutil --import VMWARE.der
 
 Sleep 1
 echo Rebooting

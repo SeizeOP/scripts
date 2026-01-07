@@ -8,7 +8,7 @@ Most of the scripts in this repository are /Bash/ scripts. If you are using this
 #+begin_src bash
 [Desktop Entry]
 Name=Overrides GUI
-Comment=Simple GUI for system toggles and themeng
+Comment=Simple GUI for system toggles and theme management
 Exec=/home/user/.local/bin/overrides-gui
 Icon=face-cool
 Type=Application
