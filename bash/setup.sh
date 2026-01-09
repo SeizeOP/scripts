@@ -2,6 +2,19 @@
 
 # User setup script to properly create symbolic links and start systemd services when cloning the Scripts and dots repository onto the same system.
 #
+
+# Detect OS from /etc/os-release
+if [[ -f /etc/os-release ]]; then
+    . /etc/os-release 
+    DISTRO_NAME="$NAME"
+    DISTRO_ID="$ID"
+    echo "Detected OS: $DISTRO_NAME ($DISTRO_ID)"
+else
+    echo "Cannot detect OS version. /etc/os-release not found"
+    DISTRO_NAME="unknown"
+    DISTRO_ID="unknown"
+fi
+  
 #####################
 ### Update System ###
 #####################
@@ -10,7 +23,12 @@ select strictreply in "Yes" "No"; do
     relaxedreply=${strictreply:-$REPLY}
     case $relaxedreply in
 	Yes | YES | yes | Y | y )  ; break ;;
-	No | NO | no | n ) echo "skipping download of preconfigured dotfiles..." ; break ;;
+	case $DISTRO_ID in
+	    debian|ubuntu|mint)
+		echo "Updating APT packages..."
+		sudo apt update
+		sudo apt upgrade -y
+	No | NO | no | n ) echo "skipping system update..." ; break ;;
 	* ) echo "Please answer yes or no.";;
     esac
 done
@@ -43,11 +61,12 @@ then
 ### Setup 3rd Party Repositories if necessary ###
 #################################################
 
-# Fedora COPRs
+# If on Fedora enable Fedora COPRs
 sudo dnf copr enable erikreider/SwayNotificationCenter
 sudo dnf copr enable sdegler/hyprland
 sudo dnf copr enable yalter/niri
-# Ubuntu PPAs
+
+# If on Ubuntu enable Ubuntu PPAs 
 
 ############################
 ### Install Dependencies ###
