@@ -1,139 +1,184 @@
 #!/usr/bin/env bash
 
-# User setup script to properly create symbolic links and start systemd services when cloning the Scripts and dots repository onto the same system.
-#
+################################################################################################################# Author: SeizeOP (HD)
+#	 _   _______ _      ______         _     _____          _        _ _   _____           _       _   	# Script Name: setup.sh	
+#	| | | |  _  ( )     | ___ \       | |   |_   _|        | |      | | | /  ___|         (_)     | |  	# Description: Script to setup a system with my custom dotfile and scripts.
+#	| |_| | | | |/ ___  | |_/ /__  ___| |_    | | _ __  ___| |_ __ _| | | \ `--.  ___ _ __ _ _ __ | |_ 	# Github: https://SeizeOP/scripts/bash/seup.sh
+#	|  _  | | | | / __| |  __/ _ \/ __| __|   | || '_ \/ __| __/ _` | | |  `--. \/ __| '__| | '_ \| __|	# License: https://SeizeOP/scripts/LICENSE
+#	| | | | |/ /  \__ \ | | | (_) \__ \ |_   _| || | | \__ \ || (_| | | | /\__/ / (__| |  | | |_) | |_ 	# Contributers: SeizeOP
+#	\_| |_/___/   |___/ \_|  \___/|___/\__|  \___/_| |_|___/\__\__,_|_|_| \____/ \___|_|  |_| .__/ \__|	#
+#                                                                                        	| |        	#
+#                                                                                        	|_|        	#
+# 														#
+#################################################################################################################
 
 # Detect OS from /etc/os-release
 if [[ -f /etc/os-release ]]; then
     . /etc/os-release 
     DISTRO_NAME="$NAME"
     DISTRO_ID="$ID"
-    echo "Detected OS: $DISTRO_NAME ($DISTRO_ID)"
+     echo -e "Detected OS: $DISTRO_NAME ($DISTRO_ID)"
 else
-    echo "Cannot detect OS version. /etc/os-release not found"
+     echo -e "Cannot detect OS version. /etc/os-release not found"
     DISTRO_NAME="unknown"
     DISTRO_ID="unknown"
 fi
   
-#####################
-### Update System ###
-#####################
-echo "It is reccomended that the system is fully up to date when running this script. Check for updates now?"
+# Update System
+echo -e "\e[1;31mIt is reccomended that the system is fully up to date when running this script.\e[0m Check for updates now?"
 select strictreply in "Yes" "No"; do
     relaxedreply=${strictreply:-$REPLY}
     case $relaxedreply in
-	Yes | YES | yes | Y | y )  ; break ;;
-	case $DISTRO_ID in
-	    debian|ubuntu|mint)
-		echo "Updating APT packages..."
-		sudo apt update
-		sudo apt upgrade -y
-	No | NO | no | n ) echo "skipping system update..." ; break ;;
-	* ) echo "Please answer yes or no.";;
+		Yes | YES | yes | Y | y )
+			case $DISTRO_ID in
+				arch|endeavoros|garuda|manjaro)
+					 echo -e "Updating Pacman packages..."
+					sudo pacman -Syu ; break ;;
+				bazzite|ublue)
+					echo "Updating OSTree..."
+					sudo rpm-ostree upgrade
+					echo -e "\e[1;31mPlease reboot to apply any newly downloaded OSTree\e[0m" 
+					echo "" ; break ;;
+	    		debian|ubuntu|mint|zorin)
+					echo -e "Updating APT packages..."
+					sudo apt update
+					sudo apt upgrade -y 
+					echo "" ; break ;;
+				fedora|redhat)
+					echo -e "Updating RPM packages..." 
+					sudo dnf upgrade --refresh -y 
+					echo "" ; break ;;
+				opensuse-leap)
+					echo -e "Updating Zypper packages..."
+					sudo zypper refresh -y
+					sudo zypper update -y 
+					echo "" ; break ;;
+				opensuse-tumbleweed)
+					echo -e "Updating Zypper packages..."
+					sudo zypper refresh -y
+					sudo zypper dist-upgrade -y 
+					echo "" ; break;;
+			esac
+	esac
+	case $relaxedreply in
+		No | NO | no | n )
+			echo "skipping system update..." ; break ;;
+	esac
+	case $relaxedreply in
+		* ) 
+			echo "Please answer yes or no."; break ;;
     esac
 done
-clear
-    # Determine which package manager(s) is installed
-    APT_CMD=$(which apt)
-    DNF_CMD=$(which dnf)
-    RPM_OSTREE_CMD=$(which rpm-ostree)
-    YUM_CMD=$(command -v yum)
-    PACMAN_CMD=$(command -v pacman)
-    YAY_CMD=$(command -v yay)
-    FLATPAK_CMD=$(which flatpak)
 
-read -p "Woud you like to (re)install the packages required for dotfiles configurations?" -n 1 -r
-if [[ $REPLY =~ ^[Yy]$ ]] 
-then 
-    # Determine which package manager(s) is installed
-    APT_CMD=$(which apt)
-    DNF_CMD=$(which dnf)
-    RPM_OSTREE_CMD=$(which rpm-ostree)
-    YUM_CMD=$(which yum)
-    PACMAN_CMD=$(which pacman)
-    YAY_CMD=$(which yay)
-    FLATPAK_CMD=$(which flatpak)
-    PIP_CMD=$(which pip)
-    
-#######################
+#    FLATPAK_CMD=$(which flatpak)
+#	 PIP_CMD=$(which pip)
 
 #################################################
 ### Setup 3rd Party Repositories if necessary ###
 #################################################
 
-# If on Fedora enable Fedora COPRs
-sudo dnf copr enable erikreider/SwayNotificationCenter
-sudo dnf copr enable sdegler/hyprland
-sudo dnf copr enable yalter/niri
 
-# If on Ubuntu enable Ubuntu PPAs 
+ echo "Some external repositories may be needed for proper installation of custom configurations." 
+ echo "Would you like to enable these repositories now?"
+ echo ""
+ echo -e "Selecting Yes to enabling 3rd party repositories will do \e[1;33mone\e[0m of the following:"
+ echo -e "\e[1;32m1.\e[0m Enable several COPRs on Fedora" 
+ echo -e "\e[1;32m2.\e[0m Install an AUR helper on Arch based systems" 
+ echo -e "\e[1;32m3.\e[0m Enable several PPAs on Ubuntu based systems"
+ echo ""
+select strictreply in "Yes" "No"; do
+    relaxedreply=${strictreply:-$REPLY}
+    case $relaxedreply in
+		Yes | YES | yes | Y | y )
+		# If on Fedora, enable Fedora COPRs
+			case $DISTRO_ID in
+				fedora|redhat)
+					sudo dnf copr enable erikreider/SwayNotificationCenter
+					sudo dnf copr enable sdegler/hyprland
+					sudo dnf copr enable yalter/niri
+					break ;;
+			esac
+		# If on Arch, Install an AUR helper
+			case $DISTRO_ID in
+				arch|endeavoros|garuda|manjaro)		
+					sudo pacman -Sy yay 		
+					break ;;
+			esac
+		# If on Ubuntu enable Ubuntu PPAs
+	esac
+	case $relaxedreply in
+		No | NO | no | n )  echo -e "skipping system update..." ; break ;;
+	esac
+	case $relaxedreply in
+		* )  echo -e "Please answer yes or no.";;
+	esac
+done
 
+
+
+#####################################
+### List packages to be installed ###
+#####################################
+echo "Woud you like to (re)install the packages required for dotfiles configurations?"
+echo ""
+# APT packages
+apt_packages=(hyprland hyprpaper hyprlock sway swaync waybar waypaper wlogout kitty rofi-wayland emacs tealdeer)
+# DNF packages
+dnf_packages=(hyprland hyprpaper hyprlock sway swaync waybar waypaper wlogout kitty rofi-wayland emacs tealdeer)
+# Pacman/AUR Packages
+arch_packages=(hyprland hyprpaper)
 ############################
 ### Install Dependencies ###
 ############################
 
     # Variables to install the neccesary packages in each supported package manager.
-    dnf_packages=$(hyprland hyprpaper hyprlock sway swaync waybar waypaper wlogout kitty rofi-wayland emacs tealdeer)
-    flatpak_packages=$(be.alexandervanhee.gradia com.belmoussaoui.Authenticator com.github.tchx84.Flatseal io.github.flattool.Warehouse)
-    # use one of the following package managers in a custom preference order to install packages and update the system.
-    if [[ ! -z $DNF_CMD ]]; then
-	sudo dnf upgrade
-	sudo dnf install "${dnf_packages[@]}"
-    elif [[ ! -z $RPM_OSTREE_CMD ]]; then
-	rpm-ostree upgrade
-	rpm-ostree install "${rpm-ostree_packages[@]}"
-    elif [[ ! -z $APT_CMD ]]; then
-	sudo apt upgrade
-	sudo apt install $apt_packages
-    else
-	echo "Could not find a supported package manager..."
-    fi
-fi
+    
+    #flatpak_packages=$(be.alexandervanhee.gradia com.belmoussaoui.Authenticator com.github.tchx84.Flatseal io.github.flattool.Warehouse)
+	#sudo apt install $apt_packages
+    #else
+	# echo -e "Could not find a supported package manager..."
 
 ###########################################
 ### Clone the required git repositories ###
 ###########################################
-#
-## dotfiles repo
-echo "Install preconfigured dotfiles?"
+
+# dotfiles repo
+ echo -e "Install preconfigured dotfiles?"
 select strictreply in "Yes" "No"; do
     relaxedreply=${strictreply:-$REPLY}
     case $relaxedreply in
 	Yes | YES | yes | Y | y ) 
 	    git clone git@github.com:SeizeOP/dots.git ~/dotfiles/ ; break ;;
-	No | NO | no | n ) echo "skipping download of preconfigured dotfiles..." ; break ;;
-	* ) echo "Please answer yes or no.";;
+	No | NO | no | n )
+		echo "skipping download of preconfigured dotfiles..." ; break ;;
+	* )
+		echo -e "Please answer yes or no.";;
     esac
 done
-clear
 
-#
-## scripts repo
-echo "Woud you like to the install additional shell scripts to add system functionality?"
-echo ""
-echo "NOTE: Required for some Wlogout functionality, and launch scripts."
+# scripts repo
+ echo -e "Woud you like to the install additional shell scripts to add system functionality?"
+ echo ""
+ echo -e "NOTE: Required for some Wlogout functionality, and launch scripts."
 select strictreply in "Yes" "No"; do
     relaxedreply=${strictreply:-$REPLY}
     case $relaxedreply in
 	Yes | YES | yes | Y | y ) 
 	    git clone git@github.com:SeizeOP/scripts.git ~/scripts/ ; break ;;
-	No | NO | no | n ) echo "skipping download of scripts repo..." ; break ;;
-	* ) echo "Please answer yes or no.";;
+	No | NO | no | n )
+		echo "skipping download of scripts repo..." ; break ;;
+	* )
+		echo "Please answer yes or no.";;
     esac
 done
-clear
-
-###########################################
 
 ##################################
 ## Create the required symlinks ## 
 ##################################
-#
-## dotfiles repo [subdirectory] -> ~/.config/[subdirectory]
 echo "Generate symlinks from ~/dotfiles/[subdir] -> ~/.config/[subdir]?" 
 echo ""
-echo "NOTE: This WILL overwrite existing files under ~/.config/[subdir]. Make backups if necessary before running."
-echo "NOTE: Some system configurations may not function properly if not symlinked either manually or via this script."
+echo -e "NOTE: This WILL overwrite existing files under ~/.config/[subdir]. Make backups if necessary before running."
+echo -e "NOTE: Some system configurations may not function properly if not symlinked either manually or via this script."
 select strictreply in "Yes" "No"; do
     relaxedreply=${strictreply:-$REPLY}
     case $relaxedreply in
@@ -147,21 +192,21 @@ select strictreply in "Yes" "No"; do
 	    ln -snf ~/dotfiles/waybar/ ~/.config/waybar
 	    ln -snf ~/dotfiles/wlogout/ ~/.config/wlogout
 	    break ;;
-	No | NO | no | n ) echo "Skipping symlink creation..." ; break ;;
-	* ) echo "Please answer yes or no.";;
+	No | NO | no | n ) 
+		echo "Skipping symlink creation..." ; break ;;
+	* ) 
+		echo -e "Please answer yes or no.";;
     esac
 done
-clear
 
 ####################################
 ### Create custom .desktop files ###
 ####################################
-echo "Generate custom desktop files for Emacs and Overrides-gui?"
+ echo "Generate custom desktop files for Emacs and Overrides-gui?"
 select strictreply in "Yes" "No"; do
     relaxedreply=${strictreply:-$REPLY}
     case $relaxedreply in
 	Yes | YES | yes | Y | y )
-	    # Overrides GUI Desktop entry
 	    cat > ~/.local/share/applications/emacs.desktop <<EOF
 [Desktop Entry]
 Categories=Development;TextEditor;
@@ -176,7 +221,6 @@ StartupWMClass=Emacs
 Terminal=false
 Type=Application
 EOF
-	    # Overrides GUI Desktop entry
 	    cat > ~/.local/share/applications/overrides-gui.desktop <<EOF
 [Desktop Entry]
 Name=Overrides GUI
@@ -187,34 +231,34 @@ Type=Application
 Terminal=false
 EOF
 	break ;;
-	No | NO | no | N | n ) echo "Skipping Desktop File Creation."; break;;
-	* ) echo "Please answer yes or no.";;
+	No | NO | no | N | n )
+		echo -e "Skipping Desktop File Creation."; break;;
+	* )
+		echo -e "Please answer yes or no.";;
     esac
 done
-clear
-###########################
 
 ###########################
 ### Start Custom Waybar ###
 ###########################
-echo "Launch Waybar with custom configurations now?"
+ echo -e "Launch Waybar with custom configurations now?"
 select strictreply in "Yes" "No"; do
     relaxedreply=${strictreply:-$REPLY}
     case $relaxedreply in
 	Yes | YES | yes | Y | y )
 	    if pgrep -x "Hyprland" > /dev/null; then
-		waybar -c ~/dotfiles/waybar/config.jsonc -s ~/.config/waybar/style.css & disown
+			waybar -c ~/dotfiles/waybar/config.jsonc -s ~/.config/waybar/style.css & disown
 	    elif pgrep -x "niri" > /dev/null; then
-		waybar -c ~/dotfiles/niri-waybar/config.jsonc -s ~/dotfiles/niri-waybar/style.css & disown
+			waybar -c ~/dotfiles/niri-waybar/config.jsonc -s ~/dotfiles/niri-waybar/style.css & disown
 	    elif pgrep -x "sway" > /dev/null; then
-		waybar -c ~/dotfiles/swaybar-dracula/config.jsonc -s ~/dotfiles/swaybar-dracula/style.css & disown
+			waybar -c ~/dotfiles/swaybar-dracula/config.jsonc -s ~/dotfiles/swaybar-dracula/style.css & disown
 	    else 
-		waybar & disown 
-		 echo "Custom Waybar configuration not loaded for user."
-	    fi; break;;
-	No | NO | no | N | n ) echo "Skipping Waybar Configuration laoding."; break;;
-	* ) echo "Please answer yes or no.";;
+			waybar & disown 
+			echo "Custom Waybar configuration not loaded for $USER."
+	    fi ; break;;
+	No | NO | no | N | n )
+		echo "Skipping Waybar Configuration laoding..."; break;;
+	* )
+		echo -e "Please answer yes or no.";;
     esac
 done
-clear
-###########################
