@@ -259,7 +259,8 @@ Terminal=false
 EOF
 	break ;;
 	No | NO | no | N | n )
-		echo -e "Skipping Desktop File Creation."; break;;
+		echo "Skipping Desktop File Creation..."
+		echo "" ; break;;
 	* )
 		echo -e "Please answer yes or no.";;
     esac
@@ -282,7 +283,8 @@ select strictreply in "Yes" "No"; do
 			echo "Custom Waybar configuration not loaded for $USER."
 	    fi ; break;;
 	No | NO | no | N | n )
-		echo "Skipping Waybar Configuration laoding..."; break;;
+		echo "Skipping Waybar Configuration loading..." 
+		echo "" ; break;;
 	* )
 		echo -e "Please answer yes or no.";;
     esac
