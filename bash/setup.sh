@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-################################################################################################################# Author: SeizeOP (HD)
+######################################################################################################### Author: SeizeOP (HD)
 #	 _   _______ _      ______         _     _____          _        _ _   _____           _       _   	# Script Name: setup.sh	
 #	| | | |  _  ( )     | ___ \       | |   |_   _|        | |      | | | /  ___|         (_)     | |  	# Description: Script to setup a system with my custom dotfile and scripts.
 #	| |_| | | | |/ ___  | |_/ /__  ___| |_    | | _ __  ___| |_ __ _| | | \ `--.  ___ _ __ _ _ __ | |_ 	# Github: https://SeizeOP/scripts/bash/seup.sh
@@ -9,21 +9,42 @@
 #	\_| |_/___/   |___/ \_|  \___/|___/\__|  \___/_| |_|___/\__\__,_|_|_| \____/ \___|_|  |_| .__/ \__|	#
 #                                                                                        	| |        	#
 #                                                                                        	|_|        	#
-# 														#
-#################################################################################################################
+# 																										#
+#########################################################################################################
 
 # Detect OS from /etc/os-release
 if [[ -f /etc/os-release ]]; then
     . /etc/os-release 
     DISTRO_NAME="$NAME"
     DISTRO_ID="$ID"
-     echo -e "Detected OS: $DISTRO_NAME ($DISTRO_ID)"
+    echo -e "Detected OS: $DISTRO_NAME ($DISTRO_ID)"
 else
-     echo -e "Cannot detect OS version. /etc/os-release not found"
+    echo -e "Cannot detect OS version. /etc/os-release not found"
     DISTRO_NAME="unknown"
     DISTRO_ID="unknown"
 fi
-  
+
+# Warn user if script is run on an unsupported distrobution.
+case $DISTRO_ID in
+	unknown)
+		echo -e "Cannot detect OS version. /etc/os-release not found"
+		echo ""
+		echo -e "This script supports ONLY distrobutions based on Fedora, Debian/Ubuntu, and Arch Linux." 
+		echo "If you know that your system is based on one of these supported distrobutions you may proceed with running this script."
+		echo "Otherwise, it is reccomended to exit the script now."
+		echo ""
+		echo -e "Continue to Run HD's post install script?"
+		select strictreply in "Yes" "No"; do
+			case $relaxedreply in
+				Yes | YES | yes | Y | y )
+					echo "Continuing to load script..." ; break ;;
+				No | NO | no | n )
+					echo "Exiting script..."
+					kill -9 $(ps aux | grep '[s]etup.sh' | awk '{print $2}')
+				esac
+		done
+esac
+
 # Update System
 echo -e "\e[1;31mIt is reccomended that the system is fully up to date when running this script.\e[0m Check for updates now?"
 select strictreply in "Yes" "No"; do
@@ -32,7 +53,7 @@ select strictreply in "Yes" "No"; do
 		Yes | YES | yes | Y | y )
 			case $DISTRO_ID in
 				arch|endeavoros|garuda|manjaro)
-					 echo -e "Updating Pacman packages..."
+					echo -e "Updating Pacman packages..."
 					sudo pacman -Syu ; break ;;
 				bazzite|ublue)
 					echo "Updating OSTree..."
@@ -69,23 +90,17 @@ select strictreply in "Yes" "No"; do
 			echo "Please answer yes or no."; break ;;
     esac
 done
-
 #    FLATPAK_CMD=$(which flatpak)
-#	 PIP_CMD=$(which pip)
 
-#################################################
 ### Setup 3rd Party Repositories if necessary ###
-#################################################
-
-
- echo "Some external repositories may be needed for proper installation of custom configurations." 
- echo "Would you like to enable these repositories now?"
- echo ""
- echo -e "Selecting Yes to enabling 3rd party repositories will do \e[1;33mone\e[0m of the following:"
- echo -e "\e[1;32m1.\e[0m Enable several COPRs on Fedora" 
- echo -e "\e[1;32m2.\e[0m Install an AUR helper on Arch based systems" 
- echo -e "\e[1;32m3.\e[0m Enable several PPAs on Ubuntu based systems"
- echo ""
+echo "Some external repositories may be needed for proper installation of custom configurations." 
+echo "Would you like to enable these repositories now?"
+echo ""
+echo -e "Selecting Yes to enabling 3rd party repositories will do \e[1;33mone\e[0m of the following:"
+echo -e "\e[1;32m1.\e[0m Enable several COPRs on Fedora" 
+echo -e "\e[1;32m2.\e[0m Install an AUR helper on Arch based systems" 
+echo -e "\e[1;32m3.\e[0m Enable several PPAs on Ubuntu based systems"
+echo ""
 select strictreply in "Yes" "No"; do
     relaxedreply=${strictreply:-$REPLY}
     case $relaxedreply in
@@ -107,59 +122,74 @@ select strictreply in "Yes" "No"; do
 		# If on Ubuntu enable Ubuntu PPAs
 	esac
 	case $relaxedreply in
-		No | NO | no | n )  echo -e "skipping system update..." ; break ;;
+		No | NO | no | n )  
+			echo -e "skipping system update..."
+			echo ; break ;;
 	esac
 	case $relaxedreply in
 		* )  echo -e "Please answer yes or no.";;
 	esac
 done
 
-
-
-#####################################
-### List packages to be installed ###
-#####################################
-echo "Woud you like to (re)install the packages required for dotfiles configurations?"
-echo ""
-# APT packages
-apt_packages=(hyprland hyprpaper hyprlock sway swaync waybar waypaper wlogout kitty rofi-wayland emacs tealdeer)
-# DNF packages
-dnf_packages=(hyprland hyprpaper hyprlock sway swaync waybar waypaper wlogout kitty rofi-wayland emacs tealdeer)
-# Pacman/AUR Packages
-arch_packages=(hyprland hyprpaper)
 ############################
 ### Install Dependencies ###
 ############################
+#
+### List packages to be installed ###
+apt_packages=(sway swaync waybar waypaper wlogout kitty rofi-wayland emacs tealdeer)
+dnf_packages=(hyprland hyprpaper hyprlock sway niri swaync waybar waypaper wlogout kitty rofi-wayland emacs tealdeer)
+arch_packages=(hyprland hyprpaper hyprlock sway niri)
+suse_packages=(hyprland hyprpaper hyprlock sway niri)
+#flatpak_packages=$(be.alexandervanhee.gradia com.belmoussaoui.Authenticator com.github.tchx84.Flatseal io.github.flattool.Warehouse)
 
-    # Variables to install the neccesary packages in each supported package manager.
-    
-    #flatpak_packages=$(be.alexandervanhee.gradia com.belmoussaoui.Authenticator com.github.tchx84.Flatseal io.github.flattool.Warehouse)
-	#sudo apt install $apt_packages
-    #else
-	# echo -e "Could not find a supported package manager..."
+echo "Woud you like to (re)install the packages required for dotfiles configurations?"
+select strictreply in "Yes" "No"; do
+	relaxedreply=${strictreply:-$REPLY}
+    case $relaxedreply in
+		Yes | YES | yes | Y | y )
+			case $DISTRO_ID in
+				arch|endeavoros|garuda|manjaro)
+					sudo pacman -Sy $arch_packages
+					echo "" ; break ;;
+				debian|ubuntu|mint|zorin)
+					sudo apt install $apt_packages -y
+					echo "" ; break ;;
+				fedora|redhat)
+					sudo dnf install $dnf_packages -y
+					echo "" ; break ;;
+				opensuse|opensuse-tumbleweed|opensuse-leap)
+					sudo zypper install $suse_packages
+			esac
+	esac
+	case $relaxedreply in
+		No | NO | no | n )  
+			echo "skipping installation of dependencies..." 
+			echo "" ; break ;;
+	esac
+done
 
 ###########################################
 ### Clone the required git repositories ###
 ###########################################
-
-# dotfiles repo
- echo -e "Install preconfigured dotfiles?"
+#
+### dotfiles repo
+echo "Install preconfigured dotfiles?"
 select strictreply in "Yes" "No"; do
     relaxedreply=${strictreply:-$REPLY}
     case $relaxedreply in
-	Yes | YES | yes | Y | y ) 
-	    git clone git@github.com:SeizeOP/dots.git ~/dotfiles/ ; break ;;
-	No | NO | no | n )
-		echo "skipping download of preconfigured dotfiles..." ; break ;;
-	* )
-		echo -e "Please answer yes or no.";;
+		Yes | YES | yes | Y | y ) 
+	    	git clone git@github.com:SeizeOP/dots.git ~/dotfiles/ ; break ;;
+		No | NO | no | n )
+			echo "skipping download of preconfigured dotfiles..." ; break ;;
+		* )
+			echo -e "Please answer yes or no.";;
     esac
 done
 
-# scripts repo
- echo -e "Woud you like to the install additional shell scripts to add system functionality?"
- echo ""
- echo -e "NOTE: Required for some Wlogout functionality, and launch scripts."
+### scripts repo
+echo "Woud you like to the install additional shell scripts to add system functionality?"
+echo ""
+echo -e "NOTE: Required for some Wlogout functionality, and launch scripts."
 select strictreply in "Yes" "No"; do
     relaxedreply=${strictreply:-$REPLY}
     case $relaxedreply in
@@ -172,9 +202,8 @@ select strictreply in "Yes" "No"; do
     esac
 done
 
-##################################
-## Create the required symlinks ## 
-##################################
+
+### Create the required symlinks ### 
 echo "Generate symlinks from ~/dotfiles/[subdir] -> ~/.config/[subdir]?" 
 echo ""
 echo -e "NOTE: This WILL overwrite existing files under ~/.config/[subdir]. Make backups if necessary before running."
@@ -199,10 +228,8 @@ select strictreply in "Yes" "No"; do
     esac
 done
 
-####################################
 ### Create custom .desktop files ###
-####################################
- echo "Generate custom desktop files for Emacs and Overrides-gui?"
+echo "Generate custom desktop files for Emacs and Overrides-gui?"
 select strictreply in "Yes" "No"; do
     relaxedreply=${strictreply:-$REPLY}
     case $relaxedreply in
@@ -238,10 +265,8 @@ EOF
     esac
 done
 
-###########################
 ### Start Custom Waybar ###
-###########################
- echo -e "Launch Waybar with custom configurations now?"
+echo -e "Launch Waybar with custom configurations now?"
 select strictreply in "Yes" "No"; do
     relaxedreply=${strictreply:-$REPLY}
     case $relaxedreply in
