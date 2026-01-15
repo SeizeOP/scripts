@@ -98,7 +98,6 @@ select strictreply in "Yes" "No"; do
     esac
 done
 
-### Setup 3rd Party Repositories if necessary ###
 echo "Some external repositories may be needed for proper installation of custom configurations." 
 echo "Would you like to enable these repositories now?"
 echo ""
@@ -131,7 +130,7 @@ select strictreply in "Yes" "No"; do
 		# If on Arch, Install an AUR helper
 			case $DISTRO_ID in
 				arch|endeavoros|garuda|manjaro)		
-					sudo pacman -Sy yay 		
+					sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si 		
 					echo "" ; break ;;
 			esac
 		# If on Ubuntu enable Ubuntu PPAs, Universe, and Restricted repositories
@@ -158,12 +157,13 @@ select strictreply in "Yes" "No"; do
 done
 
 ### Install Dependencies ###
-apt_packages=(sway swaylock swaync waybar waypaper wlogout kitty rofi-wayland emacs tealdeer)
-dnf_packages=(brave-browser emacs hyprland hyprlock hyprpaper niri ptyxis sway swaync waybar waypaper wlogout kitty rofi-wayland tealdeer)
-arch_packages=(hyprland hyprpaper hyprlock sway swaync niri brave-bin)
-suse_packages=(hyprland hyprpaper hyprlock sway niri)
-ublue_packages=(brave-browser)
-flatpak_packages=(com.belmoussaoui.Authenticator com.github.tchx84.Flatseal io.github.flattool.Warehouse com.nextcloud.desktopclient.nextcloud com.obsproject.Studio org.audacityteam.Audacity)
+apt_packages=(git sway swaylock swaync waybar waypaper wlogout kitty rofi-wayland emacs tealdeer)
+dnf_packages=(git brave-browser emacs hyprland hyprlock hyprpaper niri ptyxis rofi-wayland sddm sway swaync waybar waypaper wlogout kitty rofi-wayland tealdeer)
+arch_packages=(git hyprland hyprpaper hyprlock rofi sddm sway niri waybar) 
+aur_packages=(brave-bin swaync waypaper wlogout)
+suse_packages=(git hyprland hyprpaper hyprlock sddm sway niri)
+ublue_packages=(git brave-browser)
+flatpak_packages=(com.belmoussaoui.Authenticator com.github.tchx84.Flatseal io.github.flattool.Warehouse com.nextcloud.desktopclient.nextcloud com.obsproject.Studio org.audacityteam.Audacity org.localsend.localsend_app)
 
 echo "Woud you like to (re)install the packages required for dotfiles configurations?"
 select strictreply in "Yes" "No"; do
@@ -172,8 +172,30 @@ select strictreply in "Yes" "No"; do
 		Yes | YES | yes | Y | y )
 			case $DISTRO_ID in
 				arch|endeavoros|garuda|manjaro)
+					echo -e "\e[1;33mInstalling Pacman packages...\e[0m"
 					sudo pacman -Sy "${arch_packages[@]}"
-					echo "" ; break ;;
+					if command -v yay &> /dev/null; then
+						yay -Sy "${aur_packages[@]}"
+					else 
+						echo "Would you like to install YAY for AUR package management?"
+						echo "If you have an alternative AUR helper installed edit this script to replace YAY with it."
+						select strictreply in "Yes" "No"; do
+							relaxedreply=${strictreply:-$REPLY}
+								case $relaxedreply in
+									Yes | YES | yes | Y | y )
+										sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/yay-bin.git && cd yay-bin && makepkg -si
+								esac
+								case $relaxedreply in
+									No | NO | no | n )
+										echo -e "\e[1;33mSkipping YAY AUR helper installation...\e[0m"
+										echo "" ; break ;;
+								esac
+						done
+					fi
+			esac
+	case $relaxedreply in
+		Yes | YES | yes | Y | y )
+			case $DISTRO_ID in	
 				debian|ubuntu|mint|zorin)
 					sudo apt install $apt_packages -y
 					echo "" ; break ;;
@@ -197,7 +219,6 @@ select strictreply in "Yes" "No"; do
 	esac
 done
 
-### Optionally install additional Flatpak packages ###
 if command -v flatpak &> /dev/null; then
 	echo "Would you like to install additional Flatpak packages?"
 	select strictreply in "Yes" "No"; do
@@ -224,7 +245,7 @@ select strictreply in "Yes" "No"; do
     relaxedreply=${strictreply:-$REPLY}
     case $relaxedreply in
 		Yes | YES | yes | Y | y ) 
-	    	git clone git@github.com:SeizeOP/dots.git ~/dotfiles/ 
+	    	git clone https://github.com/SeizeOP/dots.git ~/dotfiles/ 
 			echo "" ; break ;;
 		No | NO | no | n )
 			echo -e "\e[1;33mSkipping download of preconfigured dotfiles...\e[0m" 
@@ -241,16 +262,14 @@ select strictreply in "Yes" "No"; do
     relaxedreply=${strictreply:-$REPLY}
     case $relaxedreply in
 		Yes | YES | yes | Y | y ) 
-	    	git clone git@github.com:SeizeOP/scripts.git ~/scripts/ ; break ;;
+	    	git clone https://github.com/SeizeOP/scripts.git ~/scripts/ ; break ;;
 		No | NO | no | n )
-			echo -e "\e[1;33mSkipping download of scripts repo...\e[0m" 
-			echo "" ; break ;;
+			echo -e "Skipping download of scripts repo..." ; break ;;
 		* )
 			echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
     esac
 done
-
-### Create the required symlinks ### 
+ 
 echo "Generate symlinks from ~/dotfiles/[subdir] -> ~/.config/[subdir]?" 
 echo ""
 echo -e "\e[1;31mNOTE:\e[0m This WILL overwrite existing files under ~/.config/[subdir]. Make backups if necessary before running."
@@ -258,15 +277,26 @@ echo -e "\e[1;31mNOTE:\e[0m Some system configurations may not function properly
 select strictreply in "Yes" "No"; do
     relaxedreply=${strictreply:-$REPLY}
     case $relaxedreply in
-	Yes | YES | yes | Y | y ) 
-	    ln -snf ~/dotfiles/emacs/ ~/.config/emacs 
-	    ln -snf ~/dotfiles/niri/ ~/.config/niri 
-	    ln -snf ~/dotfiles/nwg-wrapper/ ~/.config/nwg-wrapper 
-	    ln -snf ~/dotfiles/rofi/ ~/.config/rofi 
-	    ln -snf ~/dotfiles/sway-dracula/ ~/.config/sway
-	    ln -snf ~/dotfiles/waybar-dracula/ ~/dotfiles/waybar
-	    ln -snf ~/dotfiles/waybar/ ~/.config/waybar
-	    ln -snf ~/dotfiles/wlogout/ ~/.config/wlogout
+	Yes | YES | yes | Y | y )
+		# still need to add dir checks on these, to ensure the links dont write into existing subdirectories and instead replace them. 
+	    ln -sf ~/dotfiles/emacs/ -t ~/.config/
+		ln -sf ~/dotfiles/hypr/ -t ~/.config/ 
+	    ln -sf ~/dotfiles/niri/ -t ~/.config/ 
+	    ln -sf ~/dotfiles/nwg-wrapper/ -t ~/.config/ 
+	    ln -sf ~/dotfiles/rofi/ -t ~/.config/ 
+	    ln -si ~/dotfiles/sway-dracula/  ~/.config/sway
+	    ln -si ~/dotfiles/waybar-dracula/ ~/dotfiles/waybar
+	    ln -sf ~/dotfiles/waybar/ -t ~/.config/
+	    ln -sf ~/dotfiles/wlogout/ -t ~/.config/
+		
+		if [ ! -d ~/.local/bin ]; then
+			echo "user bin folder [~/.local/bin] does not exist. Creating Now..."
+  			mkdir -p ~/.local/bin
+		else
+			echo ""
+		fi
+			ln -sf ~/scripts/bash/overrides-gui -t ~/.local/bin/
+			ln -sf ~/scripts/bash/serv-emacs -t ~/.local/bin/
 	    break ;;
 	No | NO | no | n ) 
 		echo -e "\e[1;33mSkipping symlink creation...\e[0m" 
@@ -276,12 +306,17 @@ select strictreply in "Yes" "No"; do
     esac
 done
 
-### Create custom .desktop files ###
 echo "Generate custom desktop files for Emacs and Overrides-gui?"
 select strictreply in "Yes" "No"; do
     relaxedreply=${strictreply:-$REPLY}
     case $relaxedreply in
 	Yes | YES | yes | Y | y )
+		if [ ! -d ~/.local/share/applications ]; then
+			echo "user applications folder [~/.local/share/applications] does not exist. Creating Now..."
+  			mkdir -p ~/.local/share/applications
+		else
+			echo ""
+		fi
 	    cat > ~/.local/share/applications/emacs.desktop <<EOF
 [Desktop Entry]
 Categories=Development;TextEditor;
@@ -314,7 +349,6 @@ EOF
     esac
 done
 
-### Start Custom Waybar ###
 echo -e "Launch Waybar with custom configurations now?"
 select strictreply in "Yes" "No"; do
     relaxedreply=${strictreply:-$REPLY}
@@ -329,7 +363,6 @@ select strictreply in "Yes" "No"; do
 	    else 
 			waybar & disown 
 			echo "Custom Waybar configuration not loaded for $USER."
-			echo ""
 	    fi ; break;;
 	No | NO | no | N | n )
 		echo -e "\e[1;33mSkipping Waybar Configuration laoding...\e[0m"
@@ -339,7 +372,5 @@ select strictreply in "Yes" "No"; do
     esac
 done
 
-# Script completion message
-echo "Thank you for using HD's post install script."
+echo "Thank you for using HD's Post install script."
 echo "A reeboot may be necessary to fully apply changes made by this script."
-echo ""
