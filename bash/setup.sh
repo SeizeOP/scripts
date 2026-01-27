@@ -158,12 +158,14 @@ done
 
 ### Install Dependencies ###
 apt_packages=(git sway swaylock swaync waybar waypaper wlogout kitty rofi-wayland emacs tealdeer)
-dnf_packages=(git brave-browser emacs hyprland hyprlock hyprpaper niri ptyxis rofi-wayland sddm sway swaync waybar waypaper wlogout kitty rofi-wayland tealdeer)
-arch_packages=(git hyprland hyprpaper hyprlock rofi sddm sway niri waybar) 
-aur_packages=(brave-bin swaync waypaper wlogout)
-suse_packages=(git hyprland hyprpaper hyprlock sddm sway niri)
-ublue_packages=(git brave-browser)
+aur_packages=(brave-bin swaync waypaper wlogout libtool libvterm)
+arch_packages=(git hyprland hyprpaper hyprlock rofi sddm sway niri waybar)
+brew_cask_packages=(font-jetbrains-mono)
+brew_formulae_packages=(tealdeer sqlite) 
+dnf_packages=(git brave-browser emacs hyprland hyprlock hyprpaper niri ptyxis rofi-wayland sddm sway swaync waybar waypaper wlogout kitty rofi-wayland tealdeer libtool libvterm)
 flatpak_packages=(com.belmoussaoui.Authenticator com.github.tchx84.Flatseal io.github.flattool.Warehouse com.nextcloud.desktopclient.nextcloud com.obsproject.Studio org.audacityteam.Audacity org.localsend.localsend_app)
+suse_packages=(git hyprland hyprpaper hyprlock sddm sway niri)
+ublue_packages=(git brave-browser libtool libvterm)
 
 echo "Woud you like to (re)install the packages required for dotfiles configurations?"
 select strictreply in "Yes" "No"; do
@@ -193,6 +195,7 @@ select strictreply in "Yes" "No"; do
 						done
 					fi
 			esac
+	esac
 	case $relaxedreply in
 		Yes | YES | yes | Y | y )
 			case $DISTRO_ID in	
@@ -207,6 +210,13 @@ select strictreply in "Yes" "No"; do
 					echo "" ; break ;;
 				bazzite|ublue)
 					run0 install brave-browser
+					echo ""
+					if command -v brew &> /dev/null; then
+						brew install --cask "${brew_cask_packages[@]}"
+						brew install "${brew_formulae_packages[@]}"
+					else
+						echo -e "\e[1;33mSkipping brew package installation...\e[0m"
+					fi
 					echo "" ; break ;;
 			esac
 	esac
@@ -226,7 +236,7 @@ if command -v flatpak &> /dev/null; then
     	case $relaxedreply in
 			Yes | YES | yes | Y | y )
 				flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-				flatpak install $flatpak_packages
+				flatpak install "${flatpak_packages[@]}"
 				echo "" ; break ;;
 			No | NO | no | n )  
 				echo -e "\e[1;33mSkipping Flatpak package installation...\e[0m"
@@ -247,6 +257,7 @@ select strictreply in "Yes" "No"; do
 		Yes | YES | yes | Y | y ) 
 	    	git clone https://github.com/SeizeOP/dots.git ~/dotfiles/ 
 			echo "" ; break ;;
+				
 		No | NO | no | n )
 			echo -e "\e[1;33mSkipping download of preconfigured dotfiles...\e[0m" 
 			echo "" ; break ;;
@@ -254,7 +265,6 @@ select strictreply in "Yes" "No"; do
 			echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
     esac
 done
-
 echo "Woud you like to the install additional shell scripts to add system functionality?"
 echo ""
 echo -e "\e[1;31mNOTE:\e[0m Required for some Wlogout functionality, and launch scripts."
@@ -278,7 +288,7 @@ select strictreply in "Yes" "No"; do
     relaxedreply=${strictreply:-$REPLY}
     case $relaxedreply in
 	Yes | YES | yes | Y | y )
-		# still need to add dir checks on these, to ensure the links dont write into existing subdirectories and instead replace them. 
+		# still need to add dir checks on these, to ensure the links do not write into existing subdirectories and instead replace them. 
 	    ln -sf ~/dotfiles/emacs/ -t ~/.config/
 		ln -sf ~/dotfiles/hypr/ -t ~/.config/ 
 	    ln -sf ~/dotfiles/niri/ -t ~/.config/ 
@@ -314,16 +324,18 @@ select strictreply in "Yes" "No"; do
 		if [ ! -d ~/.local/share/applications ]; then
 			echo "user applications folder [~/.local/share/applications] does not exist. Creating Now..."
   			mkdir -p ~/.local/share/applications
+			echo ""
 		else
 			echo ""
 		fi
-	    cat > ~/.local/share/applications/emacs.desktop <<EOF
+		# if you use emacs --daemon replace Exec line with something like emacsclient -c -a ""
+	    cat << EOF > ~/.local/share/applications/emacs.desktop
 [Desktop Entry]
 Categories=Development;TextEditor;
 Comment=Edit text
-Exec=emacsclient -ca "" %F
+Exec=emacs
 GenericName=Text Editor
-Icon=~/dotfiles/emacs/images/emacs-desktop.png
+Icon=$HOME/.local/share/icons/emacs-desktop.png
 MimeType=text/english;text/plain;text/x-makefile;text/x-c++hdr;text/x-c++src;text/x-chdr;text/x-csrc;text/x-java;text/x-moc;text/x-pascal;text/x-tcl;text/x-tex;application/x-shellscript;text/x-c;text/x-c++;
 Name=HDmacs
 StartupNotify=true
@@ -331,15 +343,28 @@ StartupWMClass=Emacs
 Terminal=false
 Type=Application
 EOF
-	    cat > ~/.local/share/applications/overrides-gui.desktop <<EOF
+	    cat << EOF > ~/.local/share/applications/overrides-gui.desktop
 [Desktop Entry]
 Name=Overrides GUI
 Comment=Simple GUI for system toggles and themeng
-Exec=/home/user/.local/bin/overrides-gui
+Exec=$HOME/.local/bin/overrides-gui
 Icon=face-cool
 Type=Application
 Terminal=false
 EOF
+		echo "Copy custom desktop file images to a univerally accessable absolute path?"
+		echo -e "NOTE: this will copy several PNGs to $HOME/.local/share/icons/"
+		echo "Choosing not to copy these images will result in a blank or fallback apperance for thier respective applications."
+		select strictreply in "Yes" "No"; do
+    		relaxedreply=${strictreply:-$REPLY}
+    			case $relaxedreply in
+					Yes | YES | yes | Y | y )
+						cp ~/dotfiles/emacs/images/emacs-desktop.png ~/.local/share/icons/emacs-desktop.png ; break ;;						
+					No | NO | no | n )
+						echo -e "\e[1;33mSkipping download of preconfigured dotfiles...\e[0m"
+						echo "" ; break ;;
+				esac
+		done
 	break ;;
 	No | NO | no | N | n )
 		echo -e "\e[1;33mSkipping Desktop File Creation...\e[0m"
