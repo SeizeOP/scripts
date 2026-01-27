@@ -1,2 +1,5 @@
 bash/network-chuck/
 learning/
+*~
+*.tmp
+temp/

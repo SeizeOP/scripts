@@ -294,8 +294,8 @@ select strictreply in "Yes" "No"; do
 	    ln -sf ~/dotfiles/niri/ -t ~/.config/ 
 	    ln -sf ~/dotfiles/nwg-wrapper/ -t ~/.config/ 
 	    ln -sf ~/dotfiles/rofi/ -t ~/.config/ 
-	    ln -si ~/dotfiles/sway-dracula/  ~/.config/sway
-	    ln -si ~/dotfiles/waybar-dracula/ ~/dotfiles/waybar
+	    ln -sif ~/dotfiles/sway-dracula/ -T ~/.config/sway
+	    ln -sif ~/dotfiles/waybar-dracula/ -T ~/dotfiles/waybar
 	    ln -sf ~/dotfiles/waybar/ -t ~/.config/
 	    ln -sf ~/dotfiles/wlogout/ -t ~/.config/
 		
