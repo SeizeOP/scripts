@@ -287,8 +287,7 @@ echo -e "\e[1;31mNOTE:\e[0m Some system configurations may not function properly
 select strictreply in "Yes" "No"; do
     relaxedreply=${strictreply:-$REPLY}
     case $relaxedreply in
-	Yes | YES | yes | Y | y )
-		# still need to add dir checks on these, to ensure the links do not write into existing subdirectories and instead replace them. 
+	Yes | YES | yes | Y | y ) 
 	    ln -sf ~/dotfiles/emacs/ -t ~/.config/
 		ln -sf ~/dotfiles/hypr/ -t ~/.config/ 
 	    ln -sf ~/dotfiles/niri/ -t ~/.config/ 
@@ -307,6 +306,15 @@ select strictreply in "Yes" "No"; do
 		fi
 			ln -sf ~/scripts/bash/overrides-gui -t ~/.local/bin/
 			ln -sf ~/scripts/bash/serv-emacs -t ~/.local/bin/
+			ln -sf ~/scripts/bash/setup.sh -t ~/.local/bin/
+		
+		if [ ! -d ~/.local/share/icons ]; then
+			echo "user icons folder [~/.local/share/icons] does not exist. Creating Now..."
+			mkdir -p ~/.local/share/icons
+		else
+			echo ""
+		fi
+			ln -sf ~/dotfiles/images/emacs-desktop.png -t ~/.local/share/icons/
 	    break ;;
 	No | NO | no | n ) 
 		echo -e "\e[1;33mSkipping symlink creation...\e[0m" 
@@ -352,19 +360,6 @@ Icon=face-cool
 Type=Application
 Terminal=false
 EOF
-		echo "Copy custom desktop file images to a univerally accessable absolute path?"
-		echo -e "NOTE: this will copy several PNGs to $HOME/.local/share/icons/"
-		echo "Choosing not to copy these images will result in a blank or fallback apperance for thier respective applications."
-		select strictreply in "Yes" "No"; do
-    		relaxedreply=${strictreply:-$REPLY}
-    			case $relaxedreply in
-					Yes | YES | yes | Y | y )
-						cp ~/dotfiles/emacs/images/emacs-desktop.png ~/.local/share/icons/emacs-desktop.png ; break ;;						
-					No | NO | no | n )
-						echo -e "\e[1;33mSkipping download of preconfigured dotfiles...\e[0m"
-						echo "" ; break ;;
-				esac
-		done
 	break ;;
 	No | NO | no | N | n )
 		echo -e "\e[1;33mSkipping Desktop File Creation...\e[0m"
