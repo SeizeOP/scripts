@@ -24,7 +24,6 @@ else
     DISTRO_NAME="unknown"
     DISTRO_ID="unknown"
 fi
-
 # Warn user if script is run on an unsupported distrobution.
 case $DISTRO_ID in
     unknown)
@@ -102,7 +101,6 @@ select strictreply in "Yes" "No" "Quit"; do
 		echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
     esac
 done
-
 echo "Some external repositories may be needed for proper installation of custom configurations." 
 echo "Would you like to enable these repositories now?"
 echo ""
@@ -178,85 +176,84 @@ ublue_packages=(git brave-browser libtool libvterm)
 
 echo "Woud you like to (re)install the packages required for dotfiles configurations?"
 select strictreply in "Yes" "No"; do
-	relaxedreply=${strictreply:-$REPLY}
+    relaxedreply=${strictreply:-$REPLY}
     case $relaxedreply in
-		Yes | YES | yes | Y | y )
-			case $DISTRO_ID in
-				arch|endeavoros|garuda|manjaro)
-					echo -e "\e[1;33mInstalling Pacman packages...\e[0m"
-					sudo pacman -Sy "${arch_packages[@]}"
-					if command -v yay &> /dev/null; then
-						yay -Sy "${aur_packages[@]}"
-					else 
-						echo "Would you like to install YAY for AUR package management?"
-						echo "If you have an alternative AUR helper installed edit this script to replace YAY with it."
-						select strictreply in "Yes" "No"; do
-							relaxedreply=${strictreply:-$REPLY}
-								case $relaxedreply in
-									Yes | YES | yes | Y | y )
-										sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/yay-bin.git && cd yay-bin && makepkg -si
-								esac
-								case $relaxedreply in
-									No | NO | no | n )
-										echo -e "\e[1;33mSkipping YAY AUR helper installation...\e[0m"
-										echo "" ; break ;;
-								esac
-						done
-					fi
-			esac
-	esac
-	case $relaxedreply in
-		Yes | YES | yes | Y | y )
-			case $DISTRO_ID in	
-				debian|ubuntu|mint|zorin)
-					sudo apt install $apt_packages -y
-					echo "" ; break ;;
-				fedora|redhat)
-					sudo dnf install "${dnf_packages[@]}" -y
-					echo "" ; break ;;
-				opensuse|opensuse-tumbleweed|opensuse-leap)
-					sudo zypper install "${suse_packages[@]}"
-					echo "" ; break ;;
-				bazzite|ublue)
-					run0 install brave-browser
-					echo ""
-					if command -v brew &> /dev/null; then
-						brew install --cask "${brew_cask_packages[@]}"
-						brew install "${brew_formulae_packages[@]}"
-					else
-						echo -e "\e[1;33mSkipping brew package installation...\e[0m"
-					fi
-					echo "" ; break ;;
-			esac
-	esac
-	case $relaxedreply in
-		No | NO | no | n )  
-			echo -e "\e[1;33mSkipping installation of dependencies...\e[0m" 
-			echo "" ; break ;;
-		* )
-			echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
-	esac
+	Yes | YES | yes | Y | y )
+	    case $DISTRO_ID in
+		arch|endeavoros|garuda|manjaro)
+		    echo -e "\e[1;33mInstalling Pacman packages...\e[0m"
+		    sudo pacman -Sy "${arch_packages[@]}"
+		    if command -v yay &> /dev/null; then
+			yay -Sy "${aur_packages[@]}"
+		    else 
+			echo "Would you like to install YAY for AUR package management?"
+			echo "If you have an alternative AUR helper installed edit this script to replace YAY with it."
+			select strictreply in "Yes" "No"; do
+			    relaxedreply=${strictreply:-$REPLY}
+			    case $relaxedreply in
+				Yes | YES | yes | Y | y )
+				    sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/yay-bin.git && cd yay-bin && makepkg -si
+			    esac
+			    case $relaxedreply in
+				No | NO | no | n )
+				    echo -e "\e[1;33mSkipping YAY AUR helper installation...\e[0m"
+				    echo "" ; break ;;
+			    esac
+			done
+		    fi
+	    esac
+    esac
+    case $relaxedreply in
+	Yes | YES | yes | Y | y )
+	    case $DISTRO_ID in	
+		debian|ubuntu|mint|zorin)
+		    sudo apt install $apt_packages -y
+		    echo "" ; break ;;
+		fedora|redhat)
+		    sudo dnf install "${dnf_packages[@]}" -y
+		    echo "" ; break ;;
+		opensuse|opensuse-tumbleweed|opensuse-leap)
+		    sudo zypper install "${suse_packages[@]}"
+		    echo "" ; break ;;
+		bazzite|ublue)
+		    run0 install "${ublue_packages[@]}"
+		    echo ""
+		    if command -v brew &> /dev/null; then
+			brew install --cask "${brew_cask_packages[@]}"
+			brew install "${brew_formulae_packages[@]}"
+		    else
+			echo -e "\e[1;33mSkipping brew package installation...\e[0m"
+		    fi
+		    echo "" ; break ;;
+	    esac
+    esac
+    case $relaxedreply in
+	No | NO | no | n )  
+	    echo -e "\e[1;33mSkipping installation of dependencies...\e[0m" 
+	    echo "" ; break ;;
+	* )
+	    echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
+    esac
 done
-
 if command -v flatpak &> /dev/null; then
-	echo "Would you like to install additional Flatpak packages?"
-	select strictreply in "Yes" "No"; do
-    	relaxedreply=${strictreply:-$REPLY}
+    echo "Would you like to install additional Flatpak packages?"
+    select strictreply in "Yes" "No"; do
+	relaxedreply=${strictreply:-$REPLY}
     	case $relaxedreply in
-			Yes | YES | yes | Y | y )
-				flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-				flatpak install "${flatpak_packages[@]}"
-				echo "" ; break ;;
-			No | NO | no | n )  
-				echo -e "\e[1;33mSkipping Flatpak package installation...\e[0m"
-				echo "" ; break ;;
-			* )
-				echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
-		esac
-	done
+	    Yes | YES | yes | Y | y )
+		flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+		flatpak install "${flatpak_packages[@]}"
+		echo "" ; break ;;
+	    No | NO | no | n )  
+		echo -e "\e[1;33mSkipping Flatpak package installation...\e[0m"
+		echo "" ; break ;;
+	    * )
+		echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
+	esac
+    done
 else
-	echo ""
-	break
+    echo ""
+    break
 fi
 ### Clone the required git repositories ###
 echo "Install preconfigured dotfiles?"
@@ -310,31 +307,29 @@ select strictreply in "Yes" "No"; do
 	    ln -sif ~/dotfiles/sway-dracula/ -T ~/.config/sway
 	    ln -sif ~/dotfiles/waybar-dracula/ -T ~/dotfiles/waybar
 	    ln -sf ~/dotfiles/waybar/ -t ~/.config/
-	    ln -sf ~/dotfiles/wlogout/ -t ~/.config/
-		
-		if [ ! -d ~/.local/bin ]; then
-			echo "user bin folder [~/.local/bin] does not exist. Creating Now..."
-  			mkdir -p ~/.local/bin
-		else
-			echo ""
-		fi
-			ln -sf ~/scripts/bash/overrides-gui -t ~/.local/bin/
-			ln -sf ~/scripts/bash/serv-emacs -t ~/.local/bin/
-			ln -sf ~/scripts/bash/setup.sh -t ~/.local/bin/
-		
-		if [ ! -d ~/.local/share/icons ]; then
-			echo "user icons folder [~/.local/share/icons] does not exist. Creating Now..."
-			mkdir -p ~/.local/share/icons
-		else
-			echo ""
-		fi
-			ln -sf ~/dotfiles/images/emacs-desktop.png -t ~/.local/share/icons/
+	    ln -sf ~/dotfiles/wlogout/ -t ~/.config/		
+	    if [ ! -d ~/.local/bin ]; then
+		echo "user bin folder [~/.local/bin] does not exist. Creating Now..."
+  		mkdir -p ~/.local/bin
+	    else
+		echo ""
+	    fi
+	    ln -sf ~/scripts/bash/overrides-gui -t ~/.local/bin/
+	    ln -sf ~/scripts/bash/serv-emacs -t ~/.local/bin/
+	    ln -sf ~/scripts/bash/setup.sh -t ~/.local/bin/
+	    if [ ! -d ~/.local/share/icons ]; then
+		echo "user icons folder [~/.local/share/icons] does not exist. Creating Now..."
+		mkdir -p ~/.local/share/icons
+	    else
+		echo ""
+	    fi
+	    ln -sf ~/dotfiles/images/emacs-desktop.png -t ~/.local/share/icons/
 	    break ;;
 	No | NO | no | n ) 
-		echo -e "\e[1;33mSkipping symlink creation...\e[0m" 
-		echo "" ; break ;;
+	    echo -e "\e[1;33mSkipping symlink creation...\e[0m" 
+	    echo "" ; break ;;
 	* ) 
-		echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
+	    echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
     esac
 done
 
@@ -343,14 +338,14 @@ select strictreply in "Yes" "No"; do
     relaxedreply=${strictreply:-$REPLY}
     case $relaxedreply in
 	Yes | YES | yes | Y | y )
-		if [ ! -d ~/.local/share/applications ]; then
-			echo "user applications folder [~/.local/share/applications] does not exist. Creating Now..."
-  			mkdir -p ~/.local/share/applications
-			echo ""
-		else
-			echo ""
-		fi
-		# if you use emacs --daemon replace Exec line with something like emacsclient -c -a ""
+	    if [ ! -d ~/.local/share/applications ]; then
+		echo "user applications folder [~/.local/share/applications] does not exist. Creating Now..."
+  		mkdir -p ~/.local/share/applications
+		echo ""
+	    else
+		echo ""
+	    fi
+	# if you use emacs --daemon replace Exec line with something like emacsclient -c -a ""
 	    cat << EOF > ~/.local/share/applications/emacs.desktop
 [Desktop Entry]
 Categories=Development;TextEditor;
@@ -376,10 +371,10 @@ Terminal=false
 EOF
 	break ;;
 	No | NO | no | N | n )
-		echo -e "\e[1;33mSkipping Desktop File Creation...\e[0m"
-		echo "" ; break;;
+	    echo -e "\e[1;33mSkipping Desktop File Creation...\e[0m"
+	    echo "" ; break;;
 	* )
-		echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
+	    echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
     esac
 done
 
@@ -389,20 +384,20 @@ select strictreply in "Yes" "No"; do
     case $relaxedreply in
 	Yes | YES | yes | Y | y )
 	    if pgrep -x "Hyprland" > /dev/null; then
-			waybar -c ~/dotfiles/waybar/config.jsonc -s ~/.config/waybar/style.css & disown
+		waybar -c ~/dotfiles/waybar/config.jsonc -s ~/.config/waybar/style.css & disown
 	    elif pgrep -x "niri" > /dev/null; then
-			waybar -c ~/dotfiles/niri-waybar/config.jsonc -s ~/dotfiles/niri-waybar/style.css & disown
+		waybar -c ~/dotfiles/niri-waybar/config.jsonc -s ~/dotfiles/niri-waybar/style.css & disown
 	    elif pgrep -x "sway" > /dev/null; then
-			waybar -c ~/dotfiles/swaybar-dracula/config.jsonc -s ~/dotfiles/swaybar-dracula/style.css & disown
+		waybar -c ~/dotfiles/swaybar-dracula/config.jsonc -s ~/dotfiles/swaybar-dracula/style.css & disown
 	    else 
-			waybar & disown 
-			echo "Custom Waybar configuration not loaded for $USER."
+		waybar & disown 
+		echo "Custom Waybar configuration not loaded for $USER."
 	    fi ; break;;
 	No | NO | no | N | n )
-		echo -e "\e[1;33mSkipping Waybar Configuration laoding...\e[0m"
-		echo "" ; break;;
+	    echo -e "\e[1;33mSkipping Waybar Configuration laoding...\e[0m"
+	    echo "" ; break;;
 	* )
-		echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
+	    echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
     esac
 done
 echo "Thank you for using HD's Post install script."
