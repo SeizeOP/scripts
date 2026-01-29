@@ -1,3 +1,26 @@
+#+title: Setup Script
+#+author: Henry Davies
+
+* TABLE OF CONTENTS :toc:noexport:
+- [[#script-metadata][Script Metadata]]
+- [[#detect-os][Detect OS]]
+  - [[#warn-user-if-script-is-run-on-an-unsupported-distrobution][Warn user if script is run on an unsupported distrobution.]]
+- [[#update-system][Update System]]
+- [[#third-party-repository-setup][Third Party Repository Setup]]
+- [[#dependencies][Dependencies]]
+  - [[#list-dependencies][List Dependencies]]
+  - [[#install-dependencies][Install Dependencies]]
+- [[#clone-the-required-git-repositories][Clone the required git repositories]]
+  - [[#clone-the-dotfiles-repositories][Clone the dotfiles repositories]]
+  - [[#clone-the-scripts-repository][Clone the scripts repository]]
+- [[#create-the-required-symlinks][Create the required symlinks]]
+- [[#custom-desktop-file-creation][Custom Desktop File Creation]]
+- [[#launchers][Launchers]]
+  - [[#launch-waybar][Launch Waybar]]
+- [[#closing-message][Closing Message]]
+
+* Script Metadata
+#+begin_src bash :tangle setup.sh
 #!/usr/bin/env bash
 
 # Author: SeizeOP (HD)
@@ -6,7 +29,10 @@
 # Github: https://SeizeOP/scripts/bash/setup.sh
 # License: https://SeizeOP/scripts/LICENSE
 # Contributers: SeizeOP
+#+end_src
 
+* Detect OS
+#+begin_src bash :tangle setup.sh
 # Detect OS from /etc/os-release
 if [[ -f /etc/os-release ]]; then
     . /etc/os-release 
@@ -19,7 +45,39 @@ else
     DISTRO_NAME="unknown"
     DISTRO_ID="unknown"
 fi
+#+end_src
 
+** Warn user if script is run on an unsupported distrobution.
+#+begin_src bash
+case $DISTRO_ID in
+    unknown)
+	echo -e "Cannot detect OS version. \e[1;31m/etc/os-release\e[0m not found"
+	echo ""
+	echo -e "This script supports ONLY distrobutions based on Fedora, Debian/Ubuntu, OpenSUSE, and Arch Linux." 
+	echo "If you know that your system is based on one of these supported distrobutions you may proceed with running this script."
+	echo "Otherwise, it is reccomended to exit the script now."
+	echo ""
+	echo "Portions of this script will work on unsupported disrobutions. However package installation and update will not work."
+	echo -e "Continue to Run HD's post install script?"
+	select strictreply in "Yes" "No"; do
+	    case $relaxedreply in
+		Yes | YES | yes | Y | y )
+		    echo "Continuing to load script..."
+		    echo "" ; break ;;
+		No | NO | no | n )
+		    echo "Exiting script..."
+		    kill -9 $(ps aux | grep '[s]etup.sh' | awk '{print $2}')
+	    esac
+	    case $relaxedreply in
+		* ) 
+		    echo "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."; break ;;
+    	    esac
+	done
+esac
+#+end_src
+
+* Update System
+#+begin_src bash :tangle setup.sh
 echo "It is reccomended that the system is fully up to date when running this script."
 echo -e "\e[1;31mCheck for updates now?\e[0m"
 select strictreply in "Yes" "No" "Quit"; do
@@ -70,7 +128,10 @@ select strictreply in "Yes" "No" "Quit"; do
 		echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
     esac
 done
+#+end_src
 
+* Third Party Repository Setup
+#+begin_src bash :tangle setup.sh
 echo "Some external repositories may be needed for proper installation of custom configurations." 
 echo "Would you like to enable these repositories now?"
 echo ""
@@ -133,7 +194,11 @@ select strictreply in "Yes" "No" "Quit"; do
 	    kill -9 $(ps aux | grep '[s]etup.sh' | awk '{print $2}')
     esac
 done
+#+end_src
 
+* Dependencies
+** List Dependencies
+#+begin_src bash :tangle setup.sh
 apt_packages=(git sway swaylock swaync waybar waypaper wlogout kitty rofi-wayland emacs tealdeer)
 aur_packages=(brave-bin swaync waypaper wlogout libtool libvterm)
 arch_packages=(git hyprland hyprpaper hyprlock rofi sddm sway niri waybar)
@@ -143,7 +208,10 @@ dnf_packages=(git brave-browser emacs hyprland hyprlock hyprpaper niri ptyxis ro
 flatpak_packages=(com.belmoussaoui.Authenticator com.github.tchx84.Flatseal io.github.flattool.Warehouse com.nextcloud.desktopclient.nextcloud com.obsproject.Studio org.audacityteam.Audacity org.localsend.localsend_app)
 suse_packages=(git hyprland hyprpaper hyprlock sddm sway niri)
 ublue_packages=(git brave-browser libtool libvterm)
+#+end_src
 
+** Install Dependencies
+#+begin_src bash :tangle setup.sh
 echo "Woud you like to (re)install the packages required for dotfiles configurations?"
 select strictreply in "Yes" "No"; do
     relaxedreply=${strictreply:-$REPLY}
@@ -225,7 +293,11 @@ else
     echo ""
     break
 fi
+#+end_src
 
+* Clone the required git repositories
+** Clone the dotfiles repositories
+#+begin_src bash :tangle setup.sh
 echo "Install preconfigured dotfiles?"
 select strictreply in "Yes" "No" "Quit"; do
     relaxedreply=${strictreply:-$REPLY}
@@ -243,7 +315,10 @@ select strictreply in "Yes" "No" "Quit"; do
 	    echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
     esac
 done
+#+end_src
 
+** Clone the scripts repository
+#+begin_src bash :tangle setup.sh
 echo "Woud you like to the install additional shell scripts to add system functionality?"
 echo ""
 echo -e "\e[1;31mNOTE:\e[0m Required for some Wlogout functionality, and launch scripts."
@@ -261,7 +336,10 @@ select strictreply in "Yes" "No" "Quit"; do
 	    echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
     esac
 done
+#+end_src
 
+* Create the required symlinks 
+#+begin_src bash :tangle setup.sh
 echo "Generate symlinks from ~/dotfiles/[subdir] -> ~/.config/[subdir]?" 
 echo ""
 echo -e "\e[1;31mNOTE:\e[0m This WILL overwrite existing files under ~/.config/[subdir]. Make backups if necessary before running."
@@ -303,7 +381,10 @@ select strictreply in "Yes" "No"; do
 	    echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
     esac
 done
+#+end_src
 
+* Custom Desktop File Creation
+#+begin_src bash :tangle setup.sh
 echo "Generate custom desktop files for Emacs and Overrides-gui?"
 select strictreply in "Yes" "No"; do
     relaxedreply=${strictreply:-$REPLY}
@@ -348,7 +429,11 @@ EOF
 	    echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
     esac
 done
+#+end_src
 
+* Launchers
+** Launch Waybar
+#+begin_src bash :tangle setup.sh
 echo -e "Launch Waybar with custom configurations now?"
 select strictreply in "Yes" "No"; do
     relaxedreply=${strictreply:-$REPLY}
@@ -371,6 +456,25 @@ select strictreply in "Yes" "No"; do
 	    echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
     esac
 done
+#+end_src
 
+* Closing Message
+#+begin_src bash :tangle setup.sh
 echo "Thank you for using HD's Post install script."
 echo "A reeboot may be necessary to fully apply changes made by this script."
+#+end_src
+
+* Footnotes :noexport:
+#+options: num:nil toc:2 
+#+startup: inlineimages fold
+#+exclude_tags: noexport
+#+export_file_name: ~/Documents/html/docs/setup-script.html
+
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/html-theme-readtheorg.setup
+#+HTML_HEAD: <style>pre.src{background:#282a36;color:white;} </style>
+#+HTML_HEAD: <style>code{background:#f8f8f2;color:#6272a4;} </style>
+#+HTML_HEAD: <style>ul{background:#f8f8f2;} </style>
+
+# Local Variables:
+# eval: (display-line-numbers-mode -1)
+# End:
