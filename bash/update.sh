@@ -33,8 +33,8 @@ case $DISTRO_ID in
 		    echo "Continuing to load script..."
 		    echo "" ; break ;;
 		No | NO | no | n )
-		    echo "Exiting script..."
-		    kill -9 $(ps aux | grep '[s]etup.sh' | awk '{print $2}')
+		    echo -e "\e[1;31mExiting script...\e[0m"
+		    kill -9 $(ps aux | grep '[u]pdate.sh' | awk '{print $2}')
 	    esac
 	    case $relaxedreply in
 		* ) 
