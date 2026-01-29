@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 read -e -p "Enter the filename: " input_file
 base_filename=$(basename "$input_file")
 new_filename="${base_filename%.*}.pdf"
