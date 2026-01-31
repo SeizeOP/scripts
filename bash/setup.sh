@@ -20,6 +20,32 @@ else
     DISTRO_ID="unknown"
 fi
 
+case $DISTRO_ID in
+    unknown)
+	echo -e "Cannot detect OS version. \e[1;31m/etc/os-release\e[0m not found"
+	echo ""
+	echo -e "This script supports ONLY distrobutions based on Fedora, Debian/Ubuntu, OpenSUSE, and Arch Linux." 
+	echo "If you know that your system is based on one of these supported distrobutions you may proceed with running this script."
+	echo "Otherwise, it is reccomended to exit the script now."
+	echo ""
+	echo "Portions of this script will work on unsupported disrobutions. However package installation and update will not work."
+	echo -e "Continue to Run HD's post install script?"
+	select strictreply in "Yes" "No"; do
+	    case $relaxedreply in
+		Yes | YES | yes | Y | y )
+		    echo "Continuing to load script..."
+		    echo "" ; break ;;
+		No | NO | no | n )
+		    echo "Exiting script..."
+		    kill -9 $(ps aux | grep '[s]etup.sh' | awk '{print $2}')
+	    esac
+	    case $relaxedreply in
+		* ) 
+		    echo "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."; break ;;
+    	    esac
+	done
+esac
+
 echo "It is reccomended that the system is fully up to date when running this script."
 echo -e "\e[1;31mCheck for updates now?\e[0m"
 select strictreply in "Yes" "No" "Quit"; do
@@ -137,7 +163,7 @@ done
 apt_packages=(git sway swaylock swaync waybar waypaper wlogout kitty rofi-wayland emacs tealdeer)
 aur_packages=(brave-bin swaync waypaper wlogout libtool libvterm)
 arch_packages=(git hyprland hyprpaper hyprlock rofi sddm sway niri waybar)
-brew_cask_packages=(font-jetbrains-mono source-code-pro)
+brew_cask_packages=(font-jetbrains-mono font-source-code-pro)
 brew_formulae_packages=(tealdeer sqlite) 
 dnf_packages=(git brave-browser emacs hyprland hyprlock hyprpaper niri ptyxis rofi-wayland sddm sway swaync waybar waypaper wlogout kitty rofi-wayland tealdeer libtool libvterm)
 flatpak_packages=(com.belmoussaoui.Authenticator com.github.tchx84.Flatseal io.github.flattool.Warehouse com.nextcloud.desktopclient.nextcloud com.obsproject.Studio org.audacityteam.Audacity org.localsend.localsend_app)
