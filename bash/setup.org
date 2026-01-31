@@ -48,7 +48,7 @@ fi
 #+end_src
 
 ** Warn user if script is run on an unsupported distrobution.
-#+begin_src bash
+#+begin_src bash :tangle setup.sh
 case $DISTRO_ID in
     unknown)
 	echo -e "Cannot detect OS version. \e[1;31m/etc/os-release\e[0m not found"
