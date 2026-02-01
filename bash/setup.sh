@@ -7,7 +7,6 @@
 # License: https://SeizeOP/scripts/LICENSE
 # Contributers: SeizeOP
 
-# Detect OS from /etc/os-release
 if [[ -f /etc/os-release ]]; then
     . /etc/os-release 
     DISTRO_NAME="$NAME"
@@ -45,6 +44,55 @@ case $DISTRO_ID in
     	    esac
 	done
 esac
+
+if [ -n "$TERMUX_VERSION" ]; then
+    echo "This script is running in Termux Version: $TERMUX_VERSION"
+    echo "By default this means package installation and upgrade sections will use PKG in a non root state."
+    DISTRO_ID="$TERMUX_MAIN_PACKAGE_FORMAT"
+
+echo "It is reccomended that the system is fully up to date when running this script. Even on Termux"
+echo -e "\e[1;31mCheck for updates now?\e[0m"
+select strictreply in "Yes" "No" "Quit"; do
+    relaxedreply=${strictreply:-$REPLY}
+    case $relaxedreply in
+	Yes | YES | yes | Y | y )
+	    case $TERMUX_MAIN_PACKAGE_FORMAT in
+		debian|ubuntu)
+		    echo -e "Updating APT packages..."
+		    pkg update -y
+		    pkg upgrade -y
+		    echo "" ; break ;;
+		fedora|redhat)
+		    echo -e "Updating RPM packages..." 
+  		    dnf upgrade --refresh -y 
+  		    echo "" ; break ;;
+		arch)
+		    echo "Updating Pacman packages..."
+  		    pacman -Syu
+		    echo "" ; break ;;
+	    esac
+    esac
+    case $relaxedreply in
+  	Quit | QUIT | quit | Q | q )
+  	    echo "Exiting script..."
+  	    kill -9 $(ps aux | grep '[s]etup.sh' | awk '{print $2}')
+	    echo "" ; break ;;
+    esac
+    case $relaxedreply in
+  	No | NO | no | n )
+	    echo -e "\e[1;33mskipping system update...\e[0m" 
+  	    echo "" ; break ;;
+    esac
+    case $relaxedreply in
+  	* ) 
+  	    echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
+    esac
+done
+
+else
+    echo "This script is not running inside Termux..."
+    echo ""
+fi
 
 echo "It is reccomended that the system is fully up to date when running this script."
 echo -e "\e[1;31mCheck for updates now?\e[0m"

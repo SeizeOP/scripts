@@ -5,6 +5,8 @@
 - [[#script-metadata][Script Metadata]]
 - [[#detect-os][Detect OS]]
   - [[#warn-user-if-script-is-run-on-an-unsupported-distrobution][Warn user if script is run on an unsupported distrobution.]]
+  - [[#determine-if-running-in-termux][Determine if running in Termux]]
+  - [[#otherwise-skip-termux-stuff][Otherwise skip Termux stuff]]
 - [[#update-system][Update System]]
 - [[#third-party-repository-setup][Third Party Repository Setup]]
 - [[#dependencies][Dependencies]]
@@ -32,8 +34,8 @@
 #+end_src
 
 * Detect OS
+Detect OS from /etc/os-release
 #+begin_src bash :tangle setup.sh
-# Detect OS from /etc/os-release
 if [[ -f /etc/os-release ]]; then
     . /etc/os-release 
     DISTRO_NAME="$NAME"
@@ -48,6 +50,7 @@ fi
 #+end_src
 
 ** Warn user if script is run on an unsupported distrobution.
+Note that there is no ~Quit~ option in this dialogue because replying ~No~ acts in the same way as ~Quit~ normally would.
 #+begin_src bash :tangle setup.sh
 case $DISTRO_ID in
     unknown)
@@ -74,6 +77,64 @@ case $DISTRO_ID in
     	    esac
 	done
 esac
+#+end_src
+
+** Determine if running in Termux
+#+begin_src bash :tangle setup.sh
+  if [ -n "$TERMUX_VERSION" ]; then
+      echo "This script is running in Termux Version: $TERMUX_VERSION"
+      echo "By default this means package installation and upgrade sections will use PKG in a non root state."
+      DISTRO_ID="$TERMUX_MAIN_PACKAGE_FORMAT"
+#+end_src
+
+*** Termux package updates
+#+begin_src bash :tangle setup.sh
+  echo "It is reccomended that the system is fully up to date when running this script. Even on Termux"
+  echo -e "\e[1;31mCheck for updates now?\e[0m"
+  select strictreply in "Yes" "No" "Quit"; do
+      relaxedreply=${strictreply:-$REPLY}
+      case $relaxedreply in
+  	Yes | YES | yes | Y | y )
+  	    case $TERMUX_MAIN_PACKAGE_FORMAT in
+  		debian|ubuntu)
+  		    echo -e "Updating APT packages..."
+  		    pkg update -y
+  		    pkg upgrade -y
+  		    echo "" ; break ;;
+  		fedora|redhat)
+  		    echo -e "Updating RPM packages..." 
+    		    dnf upgrade --refresh -y 
+    		    echo "" ; break ;;
+  		arch)
+  		    echo "Updating Pacman packages..."
+    		    pacman -Syu
+  		    echo "" ; break ;;
+  	    esac
+      esac
+      case $relaxedreply in
+    	Quit | QUIT | quit | Q | q )
+    	    echo "Exiting script..."
+    	    kill -9 $(ps aux | grep '[s]etup.sh' | awk '{print $2}')
+  	    echo "" ; break ;;
+      esac
+      case $relaxedreply in
+    	No | NO | no | n )
+  	    echo -e "\e[1;33mskipping system update...\e[0m" 
+    	    echo "" ; break ;;
+      esac
+      case $relaxedreply in
+    	* ) 
+    	    echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
+      esac
+  done
+#+end_src
+
+** Otherwise skip Termux stuff
+#+begin_src bash :tangle setup.sh
+  else
+      echo "This script is not running inside Termux..."
+      echo ""
+  fi
 #+end_src
 
 * Update System
