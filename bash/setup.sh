@@ -29,7 +29,7 @@ case $DISTRO_ID in
 	echo ""
 	echo "Portions of this script will work on unsupported disrobutions. However package installation and update will not work."
 	echo -e "Continue to Run HD's post install script?"
-	select strictreply in "Yes" "No" "Quit"; do
+	select strictreply in "Yes" "No"; do
 	    relaxedreply=${strictreply:-$REPLY}
 	    case $relaxedreply in
 		Yes | YES | yes | Y | y )
