@@ -79,7 +79,6 @@ select strictreply in "Yes" "No" "Quit"; do
   	Quit | QUIT | quit | Q | q )
   	    echo "Exiting script..."
   	    kill -9 $(ps aux | grep '[s]etup.sh' | awk '{print $2}')
-	    echo "" ; break ;;
     esac
     case $relaxedreply in
   	No | NO | no | n )
@@ -157,6 +156,7 @@ echo -e "\e[1;32m2.\e[0m Install an AUR helper on Arch based systems"
 echo -e "\e[1;32m3.\e[0m Enable several PPAs on Ubuntu based systems"
 echo -e "\e[1;32m4.\e[0m Enable several 3rd party repositories on Bazzite/Ublue systems" 
 echo ""
+echo -e "\e[1;33mNote:\e[0m 3rd party repository setup currently not supported on Termux." 
 select strictreply in "Yes" "No" "Quit"; do
     relaxedreply=${strictreply:-$REPLY}
     case $relaxedreply in
@@ -222,7 +222,7 @@ suse_packages=(git hyprland hyprpaper hyprlock sddm sway niri)
 ublue_packages=(git brave-browser libtool libvterm)
 
 echo "Woud you like to (re)install the packages required for dotfiles configurations?"
-select strictreply in "Yes" "No"; do
+select strictreply in "Yes" "No" "Quit"; do
     relaxedreply=${strictreply:-$REPLY}
     case $relaxedreply in
 	Yes | YES | yes | Y | y )
@@ -235,7 +235,7 @@ select strictreply in "Yes" "No"; do
 		    else 
 			echo "Would you like to install YAY for AUR package management?"
 			echo "If you have an alternative AUR helper installed edit this script to replace YAY with it."
-			select strictreply in "Yes" "No"; do
+			select strictreply in "Yes" "No" "Quit"; do
 			    relaxedreply=${strictreply:-$REPLY}
 			    case $relaxedreply in
 				Yes | YES | yes | Y | y )
@@ -246,6 +246,15 @@ select strictreply in "Yes" "No"; do
 				    echo -e "\e[1;33mSkipping YAY AUR helper installation...\e[0m"
 				    echo "" ; break ;;
 			    esac
+			    case $relaxedreply in
+    				Quit | QUIT | quit | Q | q )
+    				    echo "Exiting script..."
+    				    kill -9 $(ps aux | grep '[s]etup.sh' | awk '{print $2}')
+			    esac
+			    case $relaxedreply in
+  				* )
+  				    echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
+			    esac
 			done
 		    fi
 	    esac
@@ -254,7 +263,7 @@ select strictreply in "Yes" "No"; do
 	Yes | YES | yes | Y | y )
 	    case $DISTRO_ID in	
 		debian|ubuntu|mint|zorin)
-		    sudo apt install $apt_packages -y
+		    sudo apt install "${apt_packages[@]}" -y
 		    echo "" ; break ;;
 		fedora|redhat)
 		    sudo dnf install "${dnf_packages[@]}" -y
@@ -273,27 +282,55 @@ select strictreply in "Yes" "No"; do
 		    fi
 		    echo "" ; break ;;
 	    esac
+	    case $TERMUX_MAIN_PACKAGE_FORMAT in
+  		debian|ubuntu)
+		    apt install "${apt_packages[@]}" -y
+  		    echo "" ; break ;;
+  		fedora|redhat)
+		    dnf install "${dnf_packages[@]}" -y
+    		    echo "" ; break ;;
+  		arch)
+		    pacman -Sy "${arch_packages[@]}"
+  		    echo "" ; break ;;
+  	    esac
     esac
     case $relaxedreply in
 	No | NO | no | n )  
 	    echo -e "\e[1;33mSkipping installation of dependencies...\e[0m" 
 	    echo "" ; break ;;
+    esac
+    case $relaxedreply in
+	Quit | QUIT | quit | Q | q )
+      	    echo "Exiting script..."
+      	    kill -9 $(ps aux | grep '[s]etup.sh' | awk '{print $2}')
+    esac
+    case $relaxedreply in
 	* )
 	    echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
     esac
 done
+
 if command -v flatpak &> /dev/null; then
     echo "Would you like to install additional Flatpak packages?"
-    select strictreply in "Yes" "No"; do
+    select strictreply in "Yes" "No" "Quit"; do
 	relaxedreply=${strictreply:-$REPLY}
     	case $relaxedreply in
 	    Yes | YES | yes | Y | y )
 		flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 		flatpak install "${flatpak_packages[@]}"
 		echo "" ; break ;;
+	esac
+    	case $relaxedreply in
 	    No | NO | no | n )  
 		echo -e "\e[1;33mSkipping Flatpak package installation...\e[0m"
 		echo "" ; break ;;
+	esac
+    	case $relaxedreply in
+    	    Quit | QUIT | quit | Q | q )
+    		echo "Exiting script..."
+    		kill -9 $(ps aux | grep '[s]etup.sh' | awk '{print $2}')
+	esac
+    	case $relaxedreply in
 	    * )
 		echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
 	esac
@@ -343,7 +380,7 @@ echo "Generate symlinks from ~/dotfiles/[subdir] -> ~/.config/[subdir]?"
 echo ""
 echo -e "\e[1;31mNOTE:\e[0m This WILL overwrite existing files under ~/.config/[subdir]. Make backups if necessary before running."
 echo -e "\e[1;31mNOTE:\e[0m Some system configurations may not function properly if not symlinked either manually or via this script."
-select strictreply in "Yes" "No"; do
+select strictreply in "Yes" "No" "Quit"; do
     relaxedreply=${strictreply:-$REPLY}
     case $relaxedreply in
 	Yes | YES | yes | Y | y ) 
@@ -376,13 +413,16 @@ select strictreply in "Yes" "No"; do
 	No | NO | no | n ) 
 	    echo -e "\e[1;33mSkipping symlink creation...\e[0m" 
 	    echo "" ; break ;;
+	Quit | QUIT | quit | Q | q )
+	    echo "Exiting script..."
+	    kill -9 $(ps aux | grep '[s]etup.sh' | awk '{print $2}') ; break ;;
 	* ) 
 	    echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
     esac
 done
 
 echo "Generate custom desktop files for Emacs and Overrides-gui?"
-select strictreply in "Yes" "No"; do
+select strictreply in "Yes" "No" "Quit"; do
     relaxedreply=${strictreply:-$REPLY}
     case $relaxedreply in
 	Yes | YES | yes | Y | y )
@@ -421,13 +461,16 @@ EOF
 	No | NO | no | N | n )
 	    echo -e "\e[1;33mSkipping Desktop File Creation...\e[0m"
 	    echo "" ; break;;
+	Quit | QUIT | quit | Q | q )
+	    echo "Exiting script..."
+	    kill -9 $(ps aux | grep '[s]etup.sh' | awk '{print $2}') ; break ;;
 	* )
 	    echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
     esac
 done
 
 echo -e "Launch Waybar with custom configurations now?"
-select strictreply in "Yes" "No"; do
+select strictreply in "Yes" "No" "Quit"; do
     relaxedreply=${strictreply:-$REPLY}
     case $relaxedreply in
 	Yes | YES | yes | Y | y )
@@ -444,6 +487,9 @@ select strictreply in "Yes" "No"; do
 	No | NO | no | N | n )
 	    echo -e "\e[1;33mSkipping Waybar Configuration laoding...\e[0m"
 	    echo "" ; break;;
+	Quit | QUIT | quit | Q | q )
+	    echo "Exiting script..."
+	    kill -9 $(ps aux | grep '[s]etup.sh' | awk '{print $2}') ; break ;;
 	* )
 	    echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
     esac
