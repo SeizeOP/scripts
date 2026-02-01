@@ -29,18 +29,21 @@ case $DISTRO_ID in
 	echo ""
 	echo "Portions of this script will work on unsupported disrobutions. However package installation and update will not work."
 	echo -e "Continue to Run HD's post install script?"
-	select strictreply in "Yes" "No"; do
+	select strictreply in "Yes" "No" "Quit"; do
+	    relaxedreply=${strictreply:-$REPLY}
 	    case $relaxedreply in
 		Yes | YES | yes | Y | y )
 		    echo "Continuing to load script..."
 		    echo "" ; break ;;
+	    esac
+	    case $relaxedreply in
 		No | NO | no | n )
 		    echo "Exiting script..."
 		    kill -9 $(ps aux | grep '[s]etup.sh' | awk '{print $2}')
 	    esac
 	    case $relaxedreply in
 		* ) 
-		    echo "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."; break ;;
+		    echo "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
     	    esac
 	done
 esac
@@ -92,7 +95,6 @@ done
 else
     echo "This script is not running inside Termux..."
     echo ""
-fi
 
 echo "It is reccomended that the system is fully up to date when running this script."
 echo -e "\e[1;31mCheck for updates now?\e[0m"
@@ -144,6 +146,7 @@ select strictreply in "Yes" "No" "Quit"; do
 		echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
     esac
 done
+fi
 
 echo "Some external repositories may be needed for proper installation of custom configurations." 
 echo "Would you like to enable these repositories now?"

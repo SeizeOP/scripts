@@ -52,31 +52,34 @@ fi
 ** Warn user if script is run on an unsupported distrobution.
 Note that there is no ~Quit~ option in this dialogue because replying ~No~ acts in the same way as ~Quit~ normally would.
 #+begin_src bash :tangle setup.sh
-case $DISTRO_ID in
-    unknown)
-	echo -e "Cannot detect OS version. \e[1;31m/etc/os-release\e[0m not found"
-	echo ""
-	echo -e "This script supports ONLY distrobutions based on Fedora, Debian/Ubuntu, OpenSUSE, and Arch Linux." 
-	echo "If you know that your system is based on one of these supported distrobutions you may proceed with running this script."
-	echo "Otherwise, it is reccomended to exit the script now."
-	echo ""
-	echo "Portions of this script will work on unsupported disrobutions. However package installation and update will not work."
-	echo -e "Continue to Run HD's post install script?"
-	select strictreply in "Yes" "No"; do
-	    case $relaxedreply in
-		Yes | YES | yes | Y | y )
-		    echo "Continuing to load script..."
-		    echo "" ; break ;;
-		No | NO | no | n )
-		    echo "Exiting script..."
-		    kill -9 $(ps aux | grep '[s]etup.sh' | awk '{print $2}')
-	    esac
-	    case $relaxedreply in
-		* ) 
-		    echo "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."; break ;;
-    	    esac
-	done
-esac
+  case $DISTRO_ID in
+      unknown)
+  	echo -e "Cannot detect OS version. \e[1;31m/etc/os-release\e[0m not found"
+  	echo ""
+  	echo -e "This script supports ONLY distrobutions based on Fedora, Debian/Ubuntu, OpenSUSE, and Arch Linux." 
+  	echo "If you know that your system is based on one of these supported distrobutions you may proceed with running this script."
+  	echo "Otherwise, it is reccomended to exit the script now."
+  	echo ""
+  	echo "Portions of this script will work on unsupported disrobutions. However package installation and update will not work."
+  	echo -e "Continue to Run HD's post install script?"
+  	select strictreply in "Yes" "No" "Quit"; do
+  	    relaxedreply=${strictreply:-$REPLY}
+  	    case $relaxedreply in
+  		Yes | YES | yes | Y | y )
+  		    echo "Continuing to load script..."
+  		    echo "" ; break ;;
+  	    esac
+  	    case $relaxedreply in
+  		No | NO | no | n )
+  		    echo "Exiting script..."
+  		    kill -9 $(ps aux | grep '[s]etup.sh' | awk '{print $2}')
+  	    esac
+  	    case $relaxedreply in
+  		* ) 
+  		    echo "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
+      	    esac
+  	done
+  esac
 #+end_src
 
 ** Determine if running in Termux
@@ -134,7 +137,6 @@ esac
   else
       echo "This script is not running inside Termux..."
       echo ""
-  fi
 #+end_src
 
 * Update System
@@ -189,6 +191,7 @@ select strictreply in "Yes" "No" "Quit"; do
 		echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
     esac
 done
+fi
 #+end_src
 
 * Third Party Repository Setup
@@ -530,7 +533,7 @@ echo "A reeboot may be necessary to fully apply changes made by this script."
 #+startup: inlineimages fold
 #+exclude_tags: noexport
 #+export_file_name: ~/Documents/html/docs/setup-script.html
-
+#+auto_tangle: t
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/html-theme-readtheorg.setup
 #+HTML_HEAD: <style>pre.src{background:#282a36;color:white;} </style>
 #+HTML_HEAD: <style>code{background:#f8f8f2;color:#6272a4;} </style>
