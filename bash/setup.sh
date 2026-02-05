@@ -213,7 +213,7 @@ done
 
 apt_packages=(git sway swaylock swaync waybar waypaper wlogout kitty rofi-wayland emacs tealdeer)
 aur_packages=(brave-bin swaync waypaper wlogout libtool libvterm)
-arch_packages=(git hyprland hyprpaper hyprlock rofi sddm sway niri waybar)
+arch_packages=(adobe-source-code-pro-fonts emacs git hyprland hyprpaper hyprlock rofi sddm sway ttf-jetbrains-mono niri waybar yay)
 brew_cask_packages=(font-jetbrains-mono font-source-code-pro)
 brew_formulae_packages=(tealdeer sqlite) 
 dnf_packages=(git brave-browser emacs hyprland hyprlock hyprpaper niri ptyxis rofi-wayland sddm sway swaync waybar waypaper wlogout kitty rofi-wayland tealdeer libtool libvterm)
@@ -399,6 +399,10 @@ select strictreply in "Yes" "No" "Quit"; do
 	    else
 		echo ""
 	    fi
+	    ln -sf ~/scripts/bash/launch-nwg-wrapper -t ~/.local/bin/
+	    ln -sf ~/scripts/bash/launch-waybar -t ~/.local/bin/
+	    ln -sf ~/scripts/bash/md-to-org.sh -t ~/.local/bin/
+	    ln -sf ~/scripts/bash/md-to-pdf.sh -t ~/.local/bin/
 	    ln -sf ~/scripts/bash/overrides-gui -t ~/.local/bin/
 	    ln -sf ~/scripts/bash/serv-emacs -t ~/.local/bin/
 	    ln -sf ~/scripts/bash/setup.sh -t ~/.local/bin/

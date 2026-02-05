@@ -265,7 +265,7 @@ done
 #+begin_src bash :tangle setup.sh
 apt_packages=(git sway swaylock swaync waybar waypaper wlogout kitty rofi-wayland emacs tealdeer)
 aur_packages=(brave-bin swaync waypaper wlogout libtool libvterm)
-arch_packages=(git hyprland hyprpaper hyprlock rofi sddm sway niri waybar)
+arch_packages=(adobe-source-code-pro-fonts emacs git hyprland hyprpaper hyprlock rofi sddm sway ttf-jetbrains-mono niri waybar yay)
 brew_cask_packages=(font-jetbrains-mono font-source-code-pro)
 brew_formulae_packages=(tealdeer sqlite) 
 dnf_packages=(git brave-browser emacs hyprland hyprlock hyprpaper niri ptyxis rofi-wayland sddm sway swaync waybar waypaper wlogout kitty rofi-wayland tealdeer libtool libvterm)
@@ -467,6 +467,10 @@ done
   	    else
   		echo ""
   	    fi
+  	    ln -sf ~/scripts/bash/launch-nwg-wrapper -t ~/.local/bin/
+  	    ln -sf ~/scripts/bash/launch-waybar -t ~/.local/bin/
+  	    ln -sf ~/scripts/bash/md-to-org.sh -t ~/.local/bin/
+  	    ln -sf ~/scripts/bash/md-to-pdf.sh -t ~/.local/bin/
   	    ln -sf ~/scripts/bash/overrides-gui -t ~/.local/bin/
   	    ln -sf ~/scripts/bash/serv-emacs -t ~/.local/bin/
   	    ln -sf ~/scripts/bash/setup.sh -t ~/.local/bin/
@@ -484,7 +488,7 @@ done
   	Quit | QUIT | quit | Q | q )
   	    echo "Exiting script..."
   	    kill -9 $(ps aux | grep '[s]etup.sh' | awk '{print $2}') ; break ;;
-  	* ) 
+  	,* ) 
   	    echo -e "Please answer \e[1;32myes\e[0m or \e[1;31mno\e[0m."
       esac
   done
