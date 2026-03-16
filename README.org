@@ -16,4 +16,4 @@ Terminal=false
 #+end_src
 
 * Setup Script
-For an automated intallation of the scripts in this repository along with my [[https://github.com/seizeop/dots][dotfiles]] repository check out the [[https://github.com/SeizeOP/scripts/bash/setup.sh][setup script]].
+For an automated intallation of the scripts in this repository along with my [[https://github.com/seizeop/dots][dotfiles]] repository check out the [[https://github.com/SeizeOP/scripts/blob/main/bash/setup.sh][Setup Script]].

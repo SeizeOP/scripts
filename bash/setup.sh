@@ -211,15 +211,15 @@ select strictreply in "Yes" "No" "Quit"; do
     esac
 done
 
-apt_packages=(git sway swaylock swaync waybar waypaper wlogout kitty rofi-wayland emacs tealdeer)
+apt_packages=(git sway swaylock swaync waybar waypaper wlogout kitty rofi-wayland emacs tealdeer pandoc)
 aur_packages=(brave-bin swaync waypaper wlogout libtool libvterm)
-arch_packages=(adobe-source-code-pro-fonts emacs git hyprland hyprpaper hyprlock rofi sddm sway ttf-jetbrains-mono niri waybar yay)
+arch_packages=(adobe-source-code-pro-fonts emacs git hyprland hyprpaper hyprlock rofi sddm sway ttf-jetbrains-mono niri pandoc waybar yay)
 brew_cask_packages=(font-jetbrains-mono font-source-code-pro)
-brew_formulae_packages=(tealdeer sqlite) 
-dnf_packages=(git brave-browser emacs hyprland hyprlock hyprpaper niri ptyxis rofi-wayland sddm sway swaync waybar waypaper wlogout kitty rofi-wayland tealdeer libtool libvterm)
+brew_formulae_packages=(tealdeer texlive sqlite pandoc) 
+dnf_packages=(git brave-browser emacs hyprland hyprlock hyprpaper niri pandoc ptyxis rofi-wayland sddm sway swaync waybar waypaper wlogout kitty rofi-wayland tealdeer libtool libvterm texlive latexmk)
 flatpak_packages=(com.belmoussaoui.Authenticator com.github.tchx84.Flatseal io.github.flattool.Warehouse com.nextcloud.desktopclient.nextcloud com.obsproject.Studio org.audacityteam.Audacity org.localsend.localsend_app)
-suse_packages=(git hyprland hyprpaper hyprlock sddm sway niri)
-ublue_packages=(git brave-browser libtool libvterm)
+suse_packages=(git hyprland hyprpaper hyprlock pandoc sddm sway niri)
+ublue_packages=(git brave-browser libtool libvterm latexmk)
 
 echo "Woud you like to (re)install the packages required for dotfiles configurations?"
 select strictreply in "Yes" "No" "Quit"; do
@@ -388,6 +388,7 @@ select strictreply in "Yes" "No" "Quit"; do
 	    ln -sf ~/dotfiles/hypr/ -t ~/.config/ 
 	    ln -sf ~/dotfiles/niri/ -t ~/.config/ 
 	    ln -sf ~/dotfiles/nwg-wrapper/ -t ~/.config/ 
+	    ln -sf ~/dotfiles/nvim/ -t ~/.config/
 	    ln -sf ~/dotfiles/rofi/ -t ~/.config/ 
 	    ln -sif ~/dotfiles/sway-dracula/ -T ~/.config/sway
 	    ln -sif ~/dotfiles/waybar-dracula/ -T ~/dotfiles/waybar
